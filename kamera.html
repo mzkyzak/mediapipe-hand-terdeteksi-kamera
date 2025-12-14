@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deteksi Tangan & Wajah</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface@0.0.7/dist/blazeface.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/hand-pose-detection@2.0.0/dist/hand-pose-detection.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Deteksi Tangan & Wajah</h1>
+            <p class="subtitle">Sistem deteksi real-time </p>
+        </header>
+        <img class="hacker-art"
+     src="https://cdn-icons-png.flaticon.com/512/924/924915.png"
+     alt="Hacker Illustration">
+        
+        <div class="content">
+            <div class="detection-section">
+                <div class="video-container">
+                    <video id="video" autoplay muted playsinline></video>
+                    <canvas id="overlay"></canvas>
+                </div>
+                
+                <div class="results-panel">
+                    <h2>Hasil Deteksi</h2>
+                    <div class="result-item">
+                        <span class="result-label">Jumlah Wajah:</span>
+                        <span class="result-value" id="faceCount">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Status Wajah:</span>
+                        <span class="result-value" id="faceStatus">Tidak terdeteksi</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Jumlah Tangan:</span>
+                        <span class="result-value" id="handCount">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Status Tangan:</span>
+                        <span class="result-value" id="handStatus">Tidak terdeteksi</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Jari Terdeteksi:</span>
+                        <span class="result-value" id="fingerCount">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Gestur:</span>
+                        <span class="result-value" id="gesture">-</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>memuat...</p>
+            </div>
+            
+            <div class="controls">
+                <button id="startBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 5V19L19 12L8 5Z" fill="currentColor"/>
+                    </svg>
+                    Mulai Deteksi
+                </button>
+                <button id="stopBtn" disabled>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="6" y="6" width="4" height="12" fill="currentColor"/>
+                        <rect x="14" y="6" width="4" height="12" fill="currentColor"/>
+                    </svg>
+                    Hentikan Deteksi
+                </button>
+                
+            </div>
+            
+            <div class="status" id="status">
+                Klik "Mulai Deteksi" untuk memulai sistem
+            </div>
+
+        
+            <div class="info-section">
+                <div class="info-card">
+                    <h3>Deteksi Wajah</h3>
+                    <p>Sistem menggunakan deteksi wajah untuk mendeteksi wajah dengan kecepatan real-time.</p>
+                </div>
+                <div class="info-card">
+                    <h3>Deteksi Tangan</h3>
+                    <p>Menggunakan MediaPipe Hand Pose untuk deteksi tangan dan jari yang seimbang.</p>
+                </div>
+                <div class="info-card">
+                    <h3>Deteksi Gestur</h3>
+                    <p>Sistem dapat mengenali berbagai gestur tangan seperti nama atau Tangan.</p>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Dibuat kamera deteksi nama/tangan &copy; By:mzkyzak</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+

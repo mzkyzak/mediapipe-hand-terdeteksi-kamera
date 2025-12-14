@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Login to kamera</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',system-ui,sans-serif;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:radial-gradient(circle at top,#0f2027,#000);
+    color:#eafff1;
+}
+
+.login-box{
+    width:100%;
+    max-width:380px;
+    background:rgba(0,0,0,.75);
+    border-radius:18px;
+    padding:30px 28px;
+    box-shadow:0 0 35px rgba(0,255,153,.35);
+    border:1px solid rgba(0,255,153,.25);
+    text-align:center;
+}
+
+.login-box img{
+    width:90px;
+    margin-bottom:10px;
+    animation:float 4s ease-in-out infinite;
+    filter:drop-shadow(0 0 12px rgba(0,255,153,.6));
+}
+
+@keyframes float{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-8px)}
+}
+
+.login-box h2{
+    color:#00ff99;
+    margin-bottom:6px;
+}
+
+.login-box p{
+    opacity:.7;
+    margin-bottom:22px;
+    font-size:.95rem;
+}
+
+.input-group{
+    margin-bottom:15px;
+    text-align:left;
+}
+
+.input-group label{
+    font-size:.85rem;
+    opacity:.8;
+}
+
+.input-group input{
+    width:100%;
+    padding:11px 14px;
+    margin-top:6px;
+    border-radius:12px;
+    border:1px solid rgba(0,255,153,.25);
+    background:#000;
+    color:#eafff1;
+    outline:none;
+}
+
+.input-group input:focus{
+    border-color:#00ff99;
+    box-shadow:0 0 10px rgba(0,255,153,.4);
+}
+
+button{
+    width:100%;
+    padding:12px;
+    margin-top:12px;
+    border:none;
+    border-radius:30px;
+    background:linear-gradient(135deg,#00ff99,#00c070);
+    color:#000;
+    font-weight:600;
+    cursor:pointer;
+    box-shadow:0 0 20px rgba(0,255,153,.45);
+    transition:.25s;
+}
+
+button:hover{
+    transform:translateY(-2px) scale(1.03);
+}
+
+.status{
+    margin-top:14px;
+    font-size:.9rem;
+    font-weight:600;
+    display:none;
+}
+
+.status.error{
+    color:#ff5c5c;
+}
+
+.status.success{
+    color:#00ff99;
+}
+
+footer{
+    margin-top:18px;
+    font-size:.8rem;
+    opacity:.5;
+}
+</style>
+</head>
+
+<body>
+
+<div class="login-box">
+    <img src="https://cdn-icons-png.flaticon.com/512/924/924915.png">
+    <h2>Login</h2>
+    <p>Silakan masuk untuk melanjutkan kamera</p>
+
+    <div class="input-group">
+        <label>Username</label>
+        <input type="text" id="username" placeholder="Masukkan username">
+    </div>
+
+    <div class="input-group">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="Masukkan password">
+    </div>
+
+    <button onclick="login()">LOGIN</button>
+
+    <div id="status" class="status"></div>
+
+    <footer>© Taufiq ikhsan muzaky</footer>
+</div>
+
+<script>
+function login(){
+    const user = document.getElementById("username").value;
+    const pass = document.getElementById("password").value;
+    const status = document.getElementById("status");
+
+    if(user === "mzkyzak" && pass === "2008"){
+        status.style.display = "block";
+        status.className = "status success";
+        status.innerText = "Login berhasil, mengalihkan...";
+
+        setTimeout(()=>{
+            window.location.href = "kamera.html"; 
+        },1500);
+    }else{
+        status.style.display = "block";
+        status.className = "status error";
+        status.innerText = "Username atau password salah!";
+    }
+}
+</script>
+
+</body>
+</html>
