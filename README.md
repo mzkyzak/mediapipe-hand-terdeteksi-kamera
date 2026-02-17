@@ -42,7 +42,7 @@ Project ini adalah website deteksi kamera real-time menggunakan MediaPipe & sens
 
 ---
 
-### 🔐 Ubah Username Login
+### 🔐 Ubah Username and password Login
 
 1. Buka file `index.html`
 2. Cari username:
@@ -50,7 +50,12 @@ Project ini adalah website deteksi kamera real-time menggunakan MediaPipe & sens
    ```html
    mzkyzak
    ```
-3. Ganti dengan username milikmu
+3. Cari Password:
+
+   ```html
+   2008
+   ```
+4. Ganti dengan username milikmu
 
 ---
 
