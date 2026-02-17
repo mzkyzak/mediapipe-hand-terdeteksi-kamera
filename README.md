@@ -105,14 +105,6 @@ Pastikan kamera sudah diizinkan (**Allow Camera**).
 
 ---
 
-## 📸 Demo & Bantuan
-
-Jika butuh bantuan atau ingin tanya lebih lanjut:
-
-* Instagram: [https://www.instagram.com/mzky_zak/](https://www.instagram.com/mzky_zak/)
-
----
-
 ## 📌 Catatan
 
 * Gunakan browser 
