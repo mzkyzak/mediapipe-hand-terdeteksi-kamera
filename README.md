@@ -55,7 +55,7 @@ Project ini adalah website deteksi kamera real-time menggunakan MediaPipe & sens
    ```html
    2008
    ```
-4. Ganti dengan username milikmu
+4. Ganti dengan username and password milikmu
 
 ---
 
