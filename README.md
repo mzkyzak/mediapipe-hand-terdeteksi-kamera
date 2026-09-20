@@ -1,4 +1,4 @@
-# 🖐️ MediaPipe Hand Tracking & AI Vision Suite Modern
+# 🖐️ MediaPipe Hand Tracking 
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![MediaPipe](https://img.shields.io/badge/MediaPipe-HandPose%20%26%20BlazeFace-00F0FF?logo=google&logoColor=white)](https://google.github.io/mediapipe/)
@@ -139,17 +139,6 @@ mediapipe-hand-terdeteksi-kamera/
 
 ---
 
-## 🔐 Credential Default Login
-
-Saat pertama kali membuka `index.html`, Anda akan disajikan pintu masuk autentikasi login:
-
-* **Username**: `mzkyzak`
-* **Password**: `2008`
-
-*(Credential ini dapat diubah di bagian Javascript pada file `index.html`)*.
-
----
-
 ## ⚙️ Kustomisasi & Pengaturan
 
 ### 1️⃣ Mengubah Nama Suara TTS (Mode 1)
@@ -166,13 +155,6 @@ Nama panggilan dapat diubah langsung melalui **Sidebar Panel Mode 1** di web sec
      5: "Taufiq" // Ubah nama default 5 jari di sini
    };
    ```
-
-### 2️⃣ Mengganti File Musik Mode 2 & Mode 4
-* Mode 2 menggunakan file `photo_blur.mp3` di folder root.
-* Mode 4 menggunakan file `Hand_Tracking.mp3` di folder root.
-* Cukup ganti file `.mp3` tersebut dengan lagu pilihan Anda (pastikan nama file tetap sama).
-
----
 
 ## 📜 Lisensi
 
