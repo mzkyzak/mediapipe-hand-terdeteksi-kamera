@@ -509,16 +509,8 @@ function syncMode2AudioWithBlur(isBlurActive) {
         playSynthFallback();
       }
     }
-  } else {
-    if (isMode2AudioPlaying) {
-      if (mode2AudioElement.src && isUsingCustomMP3) {
-        mode2AudioElement.pause();
-        mode2AudioElement.currentTime = 0;
-      } else {
-        stopSynthFallback();
-      }
-    }
   }
+  // Catatan: Tidak ada auto-pause saat isBlurActive false, agar musik Mode 2 tidak mati saat pengguna bergerak/gestur berubah!
 }
 
 
