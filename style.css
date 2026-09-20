@@ -1053,13 +1053,25 @@ body.light-mode #retrolens-filter-name {
     touch-action: pan-y;
   }
 
-  /* Compact camera preview on mobile so it leaves plenty of room for controls */
+  /* Neat 16:9 Widescreen Camera Viewport for ALL Modes on Mobile (No distortion, No cropping) */
   .video-box-main {
     width: 100%;
-    height: 38vh;
-    min-height: 210px;
-    max-height: 320px;
+    height: auto;
+    aspect-ratio: 16 / 9;
     flex-shrink: 0;
+    border-radius: 14px;
+    position: relative;
+    background: #000;
+    overflow: hidden;
+    border: 1px solid var(--border-glow);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+  }
+
+  #page-mode3 .video-box-main,
+  #page-mode4 .video-box-main {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
     border-radius: 14px;
   }
 
@@ -1115,7 +1127,7 @@ body.light-mode #retrolens-filter-name {
   .webcam-preview-mode3 {
     width: 120px;
     height: 80px;
-    bottom: 16px;
+    bottom: 65px;
     right: 12px;
     top: auto;
     border-radius: 12px;
@@ -1133,16 +1145,53 @@ body.light-mode #retrolens-filter-name {
     border-radius: 12px;
   }
 
-  /* RetroLens filter HUD bar on mobile */
+  /* RetroLens & Mode 3 filter HUD bar on mobile */
   .retrolens-hud {
-    padding: 6px 10px 8px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 8px 10px 10px;
+    background: linear-gradient(to top, rgba(6,9,19,0.95) 0%, rgba(6,9,19,0.7) 80%, transparent 100%);
+    pointer-events: auto;
+    z-index: 20;
   }
+
+  .retrolens-filter-bar {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 4px 6px;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    pointer-events: auto;
+  }
+
   .filter-chip {
-    padding: 3px 8px;
-    font-size: 0.7rem;
+    padding: 4px 10px;
+    font-size: 0.72rem;
+    border-radius: 16px;
+    flex-shrink: 0;
+    pointer-events: auto;
   }
-  #retrolens-filter-name {
-    font-size: 0.78rem;
+
+  .retrolens-info {
+    font-size: 0.75rem;
+    text-align: center;
+    width: 100%;
+    margin-top: 2px;
+  }
+
+  #retrolens-filter-name, #mode3-shape-name {
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
+  .retrolens-tip {
+    font-size: 0.68rem;
+    opacity: 0.85;
+    display: block;
   }
 
   /* Guide modal responsive card */
