@@ -1,173 +1,787 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-<meta charset="UTF-8">
-<title>Login to kamera</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Hand Tracking 3D | Design by mzkyzak</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap">
 
-<style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Segoe UI',system-ui,sans-serif;
-}
+    <style>
+        :root {
+            --bg-dark: #060913;
+            --panel-bg: rgba(12, 18, 34, 0.75);
+            --card-bg-3d: linear-gradient(145deg, rgba(16, 26, 48, 0.8), rgba(8, 14, 28, 0.9));
+            --border-glow: rgba(0, 255, 153, 0.35);
+            --neon-green: #00ff99;
+            --neon-cyan: #00e5ff;
+            --neon-magenta: #ff0078;
+            --neon-gold: #ffb700;
+            --text-main: #f1f5f9;
+            --text-dim: #94a3b8;
+        }
 
-body{
-    min-height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:radial-gradient(circle at top,#0f2027,#000);
-    color:#eafff1;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            user-select: none;
+        }
 
-.login-box{
-    width:100%;
-    max-width:380px;
-    background:rgba(0,0,0,.75);
-    border-radius:18px;
-    padding:30px 28px;
-    box-shadow:0 0 35px rgba(0,255,153,.35);
-    border:1px solid rgba(0,255,153,.25);
-    text-align:center;
-}
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+            background-image:
+                radial-gradient(circle at 15% 15%, rgba(0, 255, 153, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 65%, rgba(0, 229, 255, 0.08) 0%, transparent 45%);
+        }
 
-.login-box img{
-    width:90px;
-    margin-bottom:10px;
-    animation:float 4s ease-in-out infinite;
-    filter:drop-shadow(0 0 12px rgba(0,255,153,.6));
-}
+        /* PRELOADER SCREEN (EXACTLY 3.5 SECONDS) */
+        #preloader {
+            position: fixed;
+            inset: 0;
+            background: #040711;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
 
-@keyframes float{
-    0%,100%{transform:translateY(0)}
-    50%{transform:translateY(-8px)}
-}
+        #preloader.fade-out {
+            opacity: 0;
+            visibility: hidden;
+        }
 
-.login-box h2{
-    color:#00ff99;
-    margin-bottom:6px;
-}
+        .preloader-icon {
+            font-size: 3.2rem;
+            margin-bottom: 16px;
+            animation: pulseGlow 1.5s infinite alternate;
+        }
 
-.login-box p{
-    opacity:.7;
-    margin-bottom:22px;
-    font-size:.95rem;
-}
+        .preloader-title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
 
-.input-group{
-    margin-bottom:15px;
-    text-align:left;
-}
+        .preloader-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, #ffffff, var(--neon-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-.input-group label{
-    font-size:.85rem;
-    opacity:.8;
-}
+        .preloader-sub {
+            font-size: 0.88rem;
+            color: var(--neon-cyan);
+            margin-bottom: 24px;
+            text-align: center;
+        }
 
-.input-group input{
-    width:100%;
-    padding:11px 14px;
-    margin-top:6px;
-    border-radius:12px;
-    border:1px solid rgba(0,255,153,.25);
-    background:#000;
-    color:#eafff1;
-    outline:none;
-}
+        .progress-bar-box {
+            width: 100%;
+            max-width: 320px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(0, 229, 255, 0.3);
+        }
 
-.input-group input:focus{
-    border-color:#00ff99;
-    box-shadow:0 0 10px rgba(0,255,153,.4);
-}
+        .progress-bar-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan), var(--neon-magenta));
+            border-radius: 20px;
+            transition: width 0.05s ease;
+            box-shadow: 0 0 15px var(--neon-cyan);
+        }
 
-button{
-    width:100%;
-    padding:12px;
-    margin-top:12px;
-    border:none;
-    border-radius:30px;
-    background:linear-gradient(135deg,#00ff99,#00c070);
-    color:#000;
-    font-weight:600;
-    cursor:pointer;
-    box-shadow:0 0 20px rgba(0,255,153,.45);
-    transition:.25s;
-}
+        .progress-counter {
+            margin-top: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--neon-green);
+            letter-spacing: 1px;
+        }
 
-button:hover{
-    transform:translateY(-2px) scale(1.03);
-}
+        @keyframes pulseGlow {
+            from {
+                transform: scale(1);
+                filter: drop-shadow(0 0 10px rgba(0, 255, 153, 0.4));
+            }
 
-.status{
-    margin-top:14px;
-    font-size:.9rem;
-    font-weight:600;
-    display:none;
-}
+            to {
+                transform: scale(1.1);
+                filter: drop-shadow(0 0 25px rgba(0, 229, 255, 0.8));
+            }
+        }
 
-.status.error{
-    color:#ff5c5c;
-}
+        /* MAIN WRAPPER */
+        .app-wrapper {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 46px;
+        }
 
-.status.success{
-    color:#00ff99;
-}
+        /* HEADER & HERO - MEDIUM INLINE SEJAJAR */
+        .hero-inline-card {
+            background: var(--card-bg-3d);
+            border: 1px solid var(--border-glow);
+            border-radius: 24px;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transform: perspective(1000px) rotateX(2deg) rotateY(-2deg);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
 
-footer{
-    margin-top:18px;
-    font-size:.8rem;
-    opacity:.5;
-}
-</style>
+        .hero-inline-card:hover {
+            transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
+            box-shadow: 0 25px 50px rgba(0, 255, 153, 0.25);
+        }
+
+        .hero-left-content {
+            flex: 1;
+        }
+
+        .hero-title-inline {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.7rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .hero-title-inline h1 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff, var(--neon-cyan), var(--neon-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-tagline-inline {
+            font-size: 0.92rem;
+            color: var(--text-dim);
+            margin-bottom: 14px;
+        }
+
+        .hero-tagline-inline strong {
+            color: var(--neon-cyan);
+        }
+
+        .hero-badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 255, 153, 0.12);
+            border: 1px solid rgba(0, 255, 153, 0.3);
+            padding: 4px 14px;
+            border-radius: 20px;
+            color: var(--neon-green);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .btn-start-hero {
+            background: linear-gradient(135deg, var(--neon-green), #00b36b);
+            color: #000;
+            font-size: 1.05rem;
+            font-weight: 800;
+            padding: 14px 34px;
+            border-radius: 30px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 0 25px rgba(0, 255, 153, 0.45);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .btn-start-hero:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 0 45px rgba(0, 255, 153, 0.8);
+            color: #000;
+        }
+
+        /* SECTION HEADERS */
+        .section-header-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--neon-green);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        /* SECTION 1: CARA NYALAIN KAMERA */
+        .steps-pipeline {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 18px;
+        }
+
+        .step-card-3d {
+            background: var(--card-bg-3d);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 22px;
+            transform: perspective(800px) rotateX(4deg) rotateY(-4deg);
+            transition: all 0.3s ease;
+        }
+
+        .step-card-3d:hover {
+            transform: perspective(800px) rotateX(0deg) rotateY(0deg) translateY(-4px);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 15px 30px rgba(0, 229, 255, 0.2);
+        }
+
+        .step-num-badge {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--neon-cyan), #0077ff);
+            color: #000;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            margin-bottom: 12px;
+            box-shadow: 0 0 12px var(--neon-cyan);
+        }
+
+        .step-card-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .step-card-desc {
+            font-size: 0.86rem;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+
+        /* SECTION 2: CARA BERMAIN & GESTUR */
+        .modes-showcase-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 18px;
+        }
+
+        .mode-card-3d {
+            background: var(--card-bg-3d);
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            border-radius: 20px;
+            padding: 22px;
+            transform: perspective(900px) rotateY(-5deg) rotateX(5deg);
+            transition: all 0.35s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .mode-card-3d:hover {
+            transform: perspective(900px) rotateY(0deg) rotateX(0deg) translateY(-6px);
+            border-color: var(--neon-green);
+            box-shadow: 0 20px 40px rgba(0, 255, 153, 0.3);
+        }
+
+        .mode-icon-3d {
+            font-size: 2.2rem;
+            margin-bottom: 4px;
+        }
+
+        .mode-card-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--neon-green);
+        }
+
+        .mode-card-text {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+
+        /* SECTION 3: DESKRIPSI APLIKASI */
+        .description-card-3d {
+            background: var(--card-bg-3d);
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            border-radius: 22px;
+            padding: 28px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            font-size: 0.92rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        .description-card-3d p {
+            margin-bottom: 12px;
+        }
+
+        .description-card-3d strong {
+            color: #fff;
+        }
+
+        /* SECTION 4: MANFAAT APLIKASI */
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 18px;
+        }
+
+        .benefit-item-3d {
+            background: rgba(12, 18, 34, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .benefit-item-3d:hover {
+            border-color: var(--neon-gold);
+            box-shadow: 0 12px 30px rgba(255, 183, 0, 0.2);
+            transform: translateY(-4px);
+        }
+
+        .benefit-icon {
+            font-size: 2rem;
+        }
+
+        .benefit-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--neon-gold);
+        }
+
+        .benefit-desc {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            line-height: 1.45;
+        }
+
+        /* SECTION 5: DEVELOPER CONTROL PANEL & TENTANG WEB INI */
+        .developer-control-panel {
+            background: linear-gradient(135deg, rgba(14, 23, 42, 0.95), rgba(6, 9, 19, 0.95));
+            border: 1px solid var(--neon-cyan);
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 20px 50px rgba(0, 229, 255, 0.15);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .panel-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 14px;
+        }
+
+        .panel-top-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--neon-cyan);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel-status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            color: var(--neon-green);
+            background: rgba(0, 255, 153, 0.1);
+            padding: 4px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 255, 153, 0.3);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--neon-green);
+            box-shadow: 0 0 8px var(--neon-green);
+        }
+
+        .panel-grid-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .panel-spec-box {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 14px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .spec-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .spec-value {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .tech-pills-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .tech-pill {
+            font-size: 0.75rem;
+            padding: 3px 10px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--neon-cyan);
+        }
+
+        /* FOOTER */
+        footer {
+            width: 100%;
+            text-align: center;
+            padding: 24px;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .app-wrapper {
+                padding: 20px 14px 40px;
+                gap: 30px;
+            }
+
+            .hero-inline-card {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 20px;
+                transform: none;
+                border-radius: 18px;
+            }
+
+            .btn-start-hero {
+                width: 100%;
+                justify-content: center;
+                padding: 12px 24px;
+                font-size: 0.95rem;
+            }
+
+            .hero-title-inline h1 {
+                font-size: 1.35rem;
+            }
+
+            .step-card-3d,
+            .mode-card-3d {
+                transform: none;
+                padding: 18px;
+            }
+
+            .section-header-title {
+                font-size: 1.15rem;
+                margin-bottom: 12px;
+            }
+
+            .developer-control-panel {
+                padding: 20px;
+                border-radius: 18px;
+            }
+
+            .panel-top-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="login-box">
-    <img src="https://cdn-icons-png.flaticon.com/512/924/924915.png">
-    <h2>Login</h2>
-    <p>Silakan masuk untuk melanjutkan kamera</p>
+    <!-- PRELOADER (EXACTLY 3.5 SECONDS DURATION) -->
+    <div id="preloader">
+        <div class="preloader-icon">🤖</div>
+        <div class="preloader-title-row">
+            <span class="preloader-title">Welcome to Hand Tracking 3D</span>
+        </div>
+        <div class="preloader-sub">Design by mzkyzak | All Rights Reserved Taufiq Ikhsan Muzaky</div>
 
-    <div class="input-group">
-        <label>Username</label>
-        <input type="text" id="username" placeholder="Masukkan username">
+        <div class="progress-bar-box">
+            <div id="progress-fill" class="progress-bar-fill"></div>
+        </div>
+        <div id="progress-text" class="progress-counter">1%</div>
     </div>
 
-    <div class="input-group">
-        <label>Password</label>
-        <input type="password" id="password" placeholder="Masukkan password">
+    <!-- MAIN APP WRAPPER -->
+    <div class="app-wrapper">
+
+        <!-- HERO SECTION - MEDIUM INLINE SEJAJAR CARD -->
+        <header class="hero-inline-card">
+            <div class="hero-left-content">
+                <div class="hero-title-inline">
+                    <span style="font-size: 1.6rem;">🎥</span>
+                    <h1>Welcome to Hand Tracking 3D</h1>
+                </div>
+                <p class="hero-tagline-inline">
+                    Design by <strong>mzkyzak</strong> &bull; All Rights Reserved <strong>Taufiq Ikhsan
+                        Muzaky</strong>.<br>
+                    Sistem Hand tracking animasi tangan dengan Multi-Mode Kamera Hand Tracking real-time 60 FPS di web
+                    browser
+                    tanpa
+                    instalasi.
+                </p>
+                <div class="hero-badge-pill">
+                    <span>✨</span> MediaPipe&bull; Three.js 3D &bull; 11 Hand trackingFilters
+                </div>
+            </div>
+
+            <a href="kamera.html" class="btn-start-hero">
+                <span>🚀</span> START GASKUY
+            </a>
+        </header>
+
+        <!-- SECTION 1: CARA NYALAIN KAMERA -->
+        <section>
+            <div class="section-header-title">
+                <span>📹</span> Cara Nyalain Kamera
+            </div>
+            <div class="steps-pipeline">
+                <div class="step-card-3d">
+                    <div class="step-num-badge">1</div>
+                    <div class="step-card-title">Buka Aplikasi Kamera</div>
+                    <div class="step-card-desc">Klik tombol <strong>Start Experience</strong> di atas untuk masuk ke
+                        antarmuka sistem kamera web.</div>
+                </div>
+                <div class="step-card-3d">
+                    <div class="step-num-badge">2</div>
+                    <div class="step-card-title">Izinkan Kamera (Allow)</div>
+                    <div class="step-card-desc">Saat pop-up izin browser muncul di pojok atas, tekan tombol
+                        <strong>"Allow" / "Izinkan"</strong> untuk menghubungkan webcam.
+                    </div>
+                </div>
+                <div class="step-card-3d">
+                    <div class="step-num-badge">3</div>
+                    <div class="step-card-title">Pencahayaan & Frame</div>
+                    <div class="step-card-desc">Posisikan tangan di depan webcam dengan cahaya yang cukup agar AI
+                        MediaPipe dapat mengenali sendi tangan secara instan.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: CARA BERMAIN & GESTUR (4-MODE SHOWCASE) -->
+        <section>
+            <div class="section-header-title">
+                <span>🎮</span> Cara Bermain & Mode Gestur Tangan
+            </div>
+            <div class="modes-showcase-grid">
+
+                <div class="mode-card-3d">
+                    <div class="mode-icon-3d">👤</div>
+                    <div class="mode-card-name">Mode 1/4: Panggil Nama</div>
+                    <div class="mode-card-text">
+                        Tunjukkan 0 jari (Tinju 👊) hingga 5 jari (🖐️) ke kamera untuk memicu panggil nama custom via suara TTS otomatis. Nama dapat dikustomisasi pada sidebar.
+                    </div>
+                </div>
+
+                <div class="mode-card-3d">
+                    <div class="mode-icon-3d">📸</div>
+                    <div class="mode-card-name">Mode 2/4: Photo Blur Trend</div>
+                    <div class="mode-card-text">
+                        Tunjukkan pose ✌️ 2 jari (Telunjuk + Tengah) ke kamera untuk memicu efek bokeh depth blur latar belakang secara otomatis. Area tubuh & wajah tetap tajam.
+                    </div>
+                </div>
+
+                <div class="mode-card-3d">
+                    <div class="mode-icon-3d">🌌</div>
+                    <div class="mode-card-name">Mode 3/4: 3D Animasi Kosmik</div>
+                    <div class="mode-card-text">
+                        <strong>Tangan 1 Master:</strong> Kontrol rotasi 3D real-time. Tangan maju / 5 Jari meledakkan <em>Supernova Burst</em>, tangan mundur stabil (baseline 1.0). Kibas tangan untuk ganti 15 Bentuk 3D.
+                    </div>
+                </div>
+
+                <div class="mode-card-3d">
+                    <div class="mode-icon-3d">🎨</div>
+                    <div class="mode-card-name">Mode 4/4: RetroLens Filter Portal</div>
+                    <div class="mode-card-text">
+                        Gunakan 2 Tinju 👊👊 / Key `C` untuk toggle 3D Mesh / 2D Quad. Cubit/sentuh telunjuk (Key `N` & `P`) untuk memilih 14 Filter Retro dengan animasi radar ujung jari.
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 3: DESKRIPSI APLIKASI -->
+        <section>
+            <div class="section-header-title">
+                <span>📝</span> Deskripsi Website Ini
+            </div>
+            <div class="description-card-3d">
+                <p>
+                    <strong>Hand Tracking</strong> adalah teknologi visual interaktif yang melacak pergerakan dan posisi 21 titik koordinat sendi tangan manusia melalui kamera web secara real-time. Website ini menggabungkan model <strong>MediaPipe Hands</strong>, <strong>TensorFlow BlazeFace</strong>, dan <strong>Three.js Engine</strong> untuk menghasilkan manipulasi visual partikel 3D dan interaksi bebas sentuh yang responsif.
+                </p>
+                <ul style="margin-top: 15px; padding-left: 20px; line-height: 1.8;">
+                    <li><strong>Deteksi Wajah:</strong> Melacak posisi area wajah pengatur fokus visual secara real-time.</li>
+                    <li><strong>Deteksi Tangan:</strong> Menggunakan MediaPipe Hand Pose untuk melacak koordinat posisi telapak dan jari tangan secara seimbang dan presisi.</li>
+                    <li><strong>Deteksi Gestur:</strong> Mengenali berbagai pola gerakan dan pose jari tangan untuk mengontrol efek animasi serta filter kamera secara interaktif.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- SECTION 4: MANFAAT APLIKASI -->
+        <section>
+            <div class="section-header-title">
+                <span>💡</span> Benefit Kece Website Ini
+            </div>
+            <div class="benefits-grid">
+                <div class="benefit-item-3d">
+                    <div class="benefit-icon">🧠</div>
+                    <div class="benefit-title">Paham Tech Berasa Pro</div>
+                    <div class="benefit-desc">Ngerasain langsung melacak pergerakan tangan real-time tanpa ribet, bikin makin paham dunia visual tracking!</div>
+                </div>
+
+                <div class="benefit-item-3d">
+                    <div class="benefit-icon">📸</div>
+                    <div class="benefit-title">Foto Estetik Auto Bokeh</div>
+                    <div class="benefit-desc">Dapet efek Photo Blur background ala kamera mahal cuma modal pose ✌️ 2 jari, langsung aesthetic parah!</div>
+                </div>
+
+                <div class="benefit-item-3d">
+                    <div class="benefit-icon">✨</div>
+                    <div class="benefit-title">Filter Retro Super Vibe</div>
+                    <div class="benefit-desc">Bebas berkreasi dengan 14 filter retro vintage & visual partikel 3D yang seru banget buat seru-seruan!</div>
+                </div>
+
+                <div class="benefit-item-3d">
+                    <div class="benefit-icon">⚡</div>
+                    <div class="benefit-title">Sat-Set Anti Ribet</div>
+                    <div class="benefit-desc">Tinggal buka browser langsung gas main! Nggak perlu install aplikasi berat yang bikin memori penuh.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 5: DEVELOPER CONTROL PANEL & TENTANG WEB INI -->
+        <section>
+            <div class="developer-control-panel">
+                <div class="panel-top-bar">
+                    <div class="panel-top-title">
+                        <span>⚙️</span> Developer & System Control Panel
+                    </div>
+                    <div class="panel-status-indicator">
+                        <span class="status-dot"></span> System Online (60 FPS Active)
+                    </div>
+                </div>
+
+                <div class="panel-grid-details">
+                    <div class="panel-spec-box">
+                        <span class="spec-label">👨‍💻 Lead Developer & Designer</span>
+                        <span class="spec-value">Taufiq Ikhsan Muzaky (mzkyzak)</span>
+                    </div>
+
+                    <div class="panel-spec-box">
+                        <span class="spec-label">📜 Application Version</span>
+                        <span class="spec-value">v2.0.0 High-Performance Release</span>
+                    </div>
+
+                    <div class="panel-spec-box">
+                        <span class="spec-label">🔒 Hak Cipta & Lisensi</span>
+                        <span class="spec-value">&copy; All Rights Reserved Taufiq Ikhsan Muzaky</span>
+                    </div>
+                </div>
+
+                <div>
+                    <span class="spec-label" style="display: block; margin-bottom: 6px;">🛠️ Integrated Tech Stack
+                        Libraries</span>
+                    <div class="tech-pills-row">
+                        <span class="tech-pill">Google MediaPipe Hands v0.4</span>
+                        <span class="tech-pill">TensorFlow BlazeFace v0.0.7</span>
+                        <span class="tech-pill">Three.js Engine r128</span>
+                        <span class="tech-pill">Web Audio & SpeechSynthesis TTS</span>
+                        <span class="tech-pill">HTML5 Canvas 2D ROI Engine</span>
+                        <span class="tech-pill">Vanilla CSS3 Glassmorphism</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </div>
 
-    <button onclick="login()">LOGIN</button>
+    <!-- FOOTER -->
+    <footer>
+        <p>&copy; 2026 <strong>Hand Tracking 3D</strong> &bull; Design by <strong>mzkyzak</strong> &bull; All Rights
+            Reserved <strong>Taufiq Ikhsan Muzaky</strong></p>
+    </footer>
 
-    <div id="status" class="status"></div>
+    <!-- PRELOADER SCRIPT (EXACTLY 3.5 SECONDS) -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const fill = document.getElementById("progress-fill");
+            const text = document.getElementById("progress-text");
+            const loader = document.getElementById("preloader");
 
-    <footer>© Taufiq ikhsan muzaky</footer>
-</div>
+            const startTime = Date.now();
+            const totalDuration = 3500; // 3.5 Detik tepat!
 
-<script>
-function login(){
-    const user = document.getElementById("username").value;
-    const pass = document.getElementById("password").value;
-    const status = document.getElementById("status");
+            const timer = setInterval(() => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(100, Math.floor((elapsed / totalDuration) * 100));
 
-    if(user === "mzkyzak" && pass === "2008"){
-        status.style.display = "block";
-        status.className = "status success";
-        status.innerText = "Login berhasil, mengalihkan...";
+                fill.style.width = progress + "%";
+                text.textContent = progress + "%";
 
-        setTimeout(()=>{
-            window.location.href = "kamera.html"; 
-        },1500);
-    }else{
-        status.style.display = "block";
-        status.className = "status error";
-        status.innerText = "Username atau password salah!";
-    }
-}
-</script>
-
+                if (progress >= 100) {
+                    clearInterval(timer);
+                    setTimeout(() => {
+                        loader.classList.add("fade-out");
+                    }, 300);
+                }
+            }, 30);
+        });
+    </script>
 </body>
-</html>
+
+</html

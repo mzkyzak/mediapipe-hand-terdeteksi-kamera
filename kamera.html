@@ -1,111 +1,487 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deteksi Tangan & Wajah</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface@0.0.7/dist/blazeface.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/hand-pose-detection@2.0.0/dist/hand-pose-detection.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="style.css">
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>Deteksi Tangan & Wajah</h1>
-            <p class="subtitle">Sistem deteksi real-time </p>
-        </header>
-        <img class="hacker-art"
-     src="https://cdn-icons-png.flaticon.com/512/924/924915.png"
-     alt="Hacker Illustration">
-        
-        <div class="content">
-            <div class="detection-section">
-                <div class="video-container">
-                    <video id="video" autoplay muted playsinline></video>
-                    <canvas id="overlay"></canvas>
-                </div>
-                
-                <div class="results-panel">
-                    <h2>Hasil Deteksi</h2>
-                    <div class="result-item">
-                        <span class="result-label">Jumlah Wajah:</span>
-                        <span class="result-value" id="faceCount">0</span>
-                    </div>
-                    <div class="result-item">
-                        <span class="result-label">Status Wajah:</span>
-                        <span class="result-value" id="faceStatus">Tidak terdeteksi</span>
-                    </div>
-                    <div class="result-item">
-                        <span class="result-label">Jumlah Tangan:</span>
-                        <span class="result-value" id="handCount">0</span>
-                    </div>
-                    <div class="result-item">
-                        <span class="result-label">Status Tangan:</span>
-                        <span class="result-value" id="handStatus">Tidak terdeteksi</span>
-                    </div>
-                    <div class="result-item">
-                        <span class="result-label">Jari Terdeteksi:</span>
-                        <span class="result-value" id="fingerCount">0</span>
-                    </div>
-                    <div class="result-item">
-                        <span class="result-label">Gestur:</span>
-                        <span class="result-value" id="gesture">-</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="loading" id="loading">
-                <div class="spinner"></div>
-                <p>memuat...</p>
-            </div>
-            
-            <div class="controls">
-                <button id="startBtn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M8 5V19L19 12L8 5Z" fill="currentColor"/>
-                    </svg>
-                    Mulai Deteksi
-                </button>
-                <button id="stopBtn" disabled>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="6" y="6" width="4" height="12" fill="currentColor"/>
-                        <rect x="14" y="6" width="4" height="12" fill="currentColor"/>
-                    </svg>
-                    Hentikan Deteksi
-                </button>
-                
-            </div>
-            
-            <div class="status" id="status">
-                Klik "Mulai Deteksi" untuk memulai sistem
-            </div>
 
-        
-            <div class="info-section">
-                <div class="info-card">
-                    <h3>Deteksi Wajah</h3>
-                    <p>Sistem menggunakan deteksi wajah untuk mendeteksi wajah dengan kecepatan real-time.</p>
-                </div>
-                <div class="info-card">
-                    <h3>Deteksi Tangan</h3>
-                    <p>Menggunakan MediaPipe Hand Pose untuk deteksi tangan dan jari yang seimbang.</p>
-                </div>
-                <div class="info-card">
-                    <h3>Deteksi Gestur</h3>
-                    <p>Sistem dapat mengenali berbagai gestur tangan seperti nama atau Tangan.</p>
-                </div>
-            </div>
-        </div>
-        
-        <footer>
-            <p>Dibuat kamera deteksi nama/tangan &copy; By:mzkyzak</p>
-        </footer>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediaPipe Hand & Face Tracking | Multi-Mode System</title>
+
+  <!-- External CDNs for TensorFlow, MediaPipe & Three.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface@0.0.7/dist/blazeface.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.min.js"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/@tensorflow-models/hand-pose-detection@2.0.0/dist/hand-pose-detection.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- Top App Navigation Header with Mode Switcher -->
+  <header class="app-header">
+    <div class="brand-title">
+      <div class="brand-name">
+        <span style="font-size: 1.3rem;">🎥</span>
+        <h1>mzkyzak | Hand Tracking</h1>
+      </div>
+      <div class="header-actions">
+        <button class="header-action-btn" onclick="toggleGuideModal()" title="Panduan Cara Bermain & Fitur">
+          📖 Panduan
+        </button>
+        <button id="theme-toggle-btn" class="header-action-btn" onclick="toggleTheme()" title="Mode Gelap / Terang">
+          🌙 Dark
+        </button>
+      </div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Mode Tabs: Mode 1/4, Mode 2/4, Mode 3/4, Mode 4/4 -->
+    <nav class="mode-tabs">
+      <button id="tab-mode1" class="tab-btn active" onclick="switchMode('mode1')">
+        <span>👤</span> Mode 1/4: Panggil Nama
+      </button>
+      <button id="tab-mode2" class="tab-btn" onclick="switchMode('mode2')">
+        <span>📸</span> Mode 2/4: Photo Blur
+      </button>
+      <button id="tab-mode3" class="tab-btn" onclick="switchMode('mode3')">
+        <span>🌌</span> Mode 3/4: 3D Animasi
+      </button>
+      <button id="tab-mode4" class="tab-btn" onclick="switchMode('mode4')">
+        <span>🎨</span> Mode 4/4: Hand tracking Filter
+      </button>
+    </nav>
+  </header>
+
+  <!-- PAGE 1: Pribadi (Deteksi Nama Taufiq, Ikhsan, Muzaky) -->
+  <main id="page-mode1" class="page-view active">
+    <div class="mode1-layout">
+      <div class="video-box-main">
+        <video id="video-mode1" autoplay muted playsinline></video>
+        <canvas id="overlay-mode1"></canvas>
+      </div>
+
+      <aside class="results-sidebar">
+        <div class="sidebar-header">
+          <h2>📊 Hasil Deteksi</h2>
+        </div>
+
+        <div class="res-grid">
+          <div class="res-card">
+            <span class="label">Jumlah Wajah</span>
+            <span id="res-face-count" class="val">0</span>
+          </div>
+          <div class="res-card">
+            <span class="label">Status Wajah</span>
+            <span id="res-face-status" class="val">Tidak terdeteksi</span>
+          </div>
+          <div class="res-card">
+            <span class="label">Jumlah Tangan</span>
+            <span id="res-hand-count" class="val">0</span>
+          </div>
+          <div class="res-card">
+            <span class="label">Status Tangan</span>
+            <span id="res-hand-status" class="val">Tidak terdeteksi</span>
+          </div>
+          <div class="res-card">
+            <span class="label">Jari Terdeteksi</span>
+            <span id="res-finger-count" class="val">0</span>
+          </div>
+          <div class="res-card">
+            <span class="label">Gestur / Nama</span>
+            <span id="res-gesture" class="val">-</span>
+          </div>
+        </div>
+
+        <!-- Panel Edit Nama Custom -->
+        <div class="name-edit-panel">
+          <div class="name-edit-header">
+            <span>✏️ Edit Nama Panggil</span>
+            <span class="name-edit-hint">Otomatis tersimpan</span>
+          </div>
+          <div class="name-edit-grid">
+            <div class="name-row">
+              <span class="name-label">👊 Tinju (0 jari)</span>
+              <input id="name-input-0" class="name-input" type="text" placeholder="Taufiq"
+                oninput="updateNameFromInput(0, this.value)">
+            </div>
+            <div class="name-row">
+              <span class="name-label">☝️ 1 Jari</span>
+              <input id="name-input-1" class="name-input" type="text" placeholder="Ikhsan"
+                oninput="updateNameFromInput(1, this.value)">
+            </div>
+            <div class="name-row">
+              <span class="name-label">✌️ 2 Jari</span>
+              <input id="name-input-2" class="name-input" type="text" placeholder="Muzaky"
+                oninput="updateNameFromInput(2, this.value)">
+            </div>
+            <div class="name-row">
+              <span class="name-label">🤟 3 Jari</span>
+              <input id="name-input-3" class="name-input" type="text" placeholder="Panggil"
+                oninput="updateNameFromInput(3, this.value)">
+            </div>
+            <div class="name-row">
+              <span class="name-label">🖐 4 Jari</span>
+              <input id="name-input-4" class="name-input" type="text" placeholder="Saya"
+                oninput="updateNameFromInput(4, this.value)">
+            </div>
+            <div class="name-row">
+              <span class="name-label">✋ 5 Jari</span>
+              <input id="name-input-5" class="name-input" type="text" placeholder="Zaky"
+                oninput="updateNameFromInput(5, this.value)">
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel Penjelasan Fitur Mode 1 -->
+        <div class="name-edit-panel">
+          <div class="name-edit-header">
+            <span>✨ Fitur Panggil Nama Pribadi</span>
+          </div>
+          <div class="feature-info-box">
+            <p><strong>🗣️ Voice Synthesizer (TTS):</strong> Menyebutkan nama otomatis saat gestur jari tangan
+              terdeteksi.</p>
+            <p><strong>🖐️ Kode Gestur:</strong> Tinju (0 Jari) & 1–5 Jari memanggil nama sesuai daftar di atas.</p>
+            <p><strong>✏️ Custom Nama:</strong> Ketik nama pilihanmu di kolom edit. Tersimpan otomatis di browser.</p>
+          </div>
+        </div>
+
+        <div id="loading-status" style="display:none; text-align:center; color:var(--neon-green); font-size:0.9rem;">
+          Memuat model MediaPipe...
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- PAGE 2: Photo Blur Trend (Portrait Bokeh Depth Effect) -->
+  <main id="page-mode2" class="page-view">
+    <div class="mode1-layout">
+      <div class="video-box-main">
+        <video id="video-mode2" autoplay muted playsinline></video>
+        <canvas id="overlay-mode2" class="blur-overlay-canvas"></canvas>
+      </div>
+
+      <aside class="results-sidebar">
+        <div class="sidebar-header">
+          <h2>📸 Status Photo Blur</h2>
+        </div>
+
+        <div class="res-grid">
+          <div class="res-card">
+            <span class="label">Status Bokeh Blur</span>
+            <span id="res-mode2-blur-status" class="val" style="color: var(--neon-cyan);">Off (Butuh ✌️ 2 Jari)</span>
+          </div>
+          <div class="res-card">
+            <span class="label">Gestur Terdeteksi</span>
+            <span id="res-mode2-gesture" class="val">-</span>
+          </div>
+          <div class="res-card">
+            <span class="label">Jumlah Wajah</span>
+            <span id="res-mode2-face-count" class="val">0</span>
+          </div>
+          <div class="res-card">
+            <span class="label">Jumlah Tangan</span>
+            <span id="res-mode2-hand-count" class="val">0</span>
+          </div>
+        </div>
+
+        <!-- Panel Penjelasan Fitur Mode 2 -->
+        <div class="name-edit-panel">
+          <div class="name-edit-header">
+            <span>✨ Fitur Photo Blur Trend</span>
+          </div>
+          <div class="feature-info-box">
+            <p><strong>✌️ Gestur 2 Jari:</strong> Tunjukkan pose 2 jari (Telunjuk + Tengah) ke kamera untuk memicu bokeh
+              blur otomatis!</p>
+            <p><strong>🎯 Fokus Otomatis:</strong> Area tubuh & wajah tetap tajam, latar belakang diblur secara estetis.
+            </p>
+            <p><strong>📸 Tombol Manual:</strong> Gunakan tombol di bawah jika ingin mengaktifkan blur tanpa gestur 2
+              jari.</p>
+          </div>
+          <button id="btn-toggle-blur" class="btn-primary"
+            style="margin-top: 10px; width: 100%; padding: 8px 16px; font-size: 0.85rem;">📸 Toggle Photo Blur</button>
+        </div>
+
+        <!-- Panel Toggle MP3 & Audio Mode 2 -->
+        <div class="name-edit-panel" style="margin-top: 15px;">
+          <div class="name-edit-header">
+            <span>🎵 Musik & Audio MP3 Blur</span>
+          </div>
+          <div class="feature-info-box" style="margin-bottom: 10px;">
+            <p style="font-size: 0.8rem; margin: 0;"><strong>🎶 Auto Music:</strong> Musik akan otomatis menyala saat efek Photo Blur ✌️ aktif!</p>
+          </div>
+          <div class="audio-controls-box">
+            <div style="margin-bottom: 10px;">
+              <button id="btn-toggle-mode2-audio" class="btn-primary" onclick="toggleMode2Audio()" style="width: 100%; padding: 8px 10px; font-size: 0.82rem; font-weight: 700; color: #ffffff; background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue)); border: none; text-shadow: 0 1px 4px rgba(0,0,0,0.5);">
+                🎵 Play Musik MP3
+              </button>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+              <span class="label" style="font-size: 0.78rem; color: var(--text-muted);">Volume:</span>
+              <input type="range" id="mode2-audio-volume" min="0" max="100" value="80" oninput="updateMode2AudioVolume(this.value)" style="flex: 1; cursor: pointer; accent-color: var(--neon-cyan);">
+              <span id="mode2-volume-val" style="font-size: 0.78rem; color: var(--neon-cyan); width: 32px; font-weight: 600;">80%</span>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 0.78rem; color: var(--text-muted);">
+              <input type="checkbox" id="chk-auto-sync-audio" checked onchange="toggleAutoSyncAudio(this.checked)" style="cursor: pointer; width: 14px; height: 14px; accent-color: var(--neon-cyan);">
+              <label for="chk-auto-sync-audio" style="cursor: pointer;">Auto-Play saat Photo Blur ✌️ Aktif</label>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- PAGE 3: 3D Professional Particle Animation (NovaSpark 3D Engine) -->
+  <main id="page-mode3" class="page-view">
+    <div class="mode1-layout">
+      <div class="video-box-main">
+        <div id="canvas-container-mode3" style="width: 100%; height: 100%; position: relative;">
+          <canvas id="particle-canvas-mode3" style="width: 100%; height: 100%; display: block;"></canvas>
+        </div>
+
+        <!-- Floating Live Webcam Tracking Window -->
+        <div class="webcam-preview-mode3">
+          <div class="webcam-badge">📹 Live Camera</div>
+          <video id="video-mode3" autoplay muted playsinline></video>
+          <canvas id="overlay-mode3"></canvas>
+        </div>
+
+        <!-- HUD: 3D Shape Selector Bar -->
+        <div class="retrolens-hud">
+          <div class="retrolens-filter-bar" id="filter-bar-mode3">
+            <!-- Populated by JS -->
+          </div>
+          <div class="retrolens-info">
+            <span id="mode3-shape-name">GALAXY</span>
+            <span class="retrolens-tip">👋 5 Jari = Scale | ☝️ 1 Jari = Rotate | 🖐️ Kibaskan = Next Shape</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results & Feature Explanation Sidebar (Header Kanan Mode 3) -->
+      <aside class="results-sidebar">
+        <div class="sidebar-header">
+          <h2>🌌 Status 3D Animasi</h2>
+        </div>
+
+        <div class="res-grid">
+          <div class="res-card">
+            <span class="label">Bentuk Partikel</span>
+            <span id="res-mode3-shape" class="val" style="color: var(--neon-cyan);">🌌 GALAXY</span>
+          </div>
+          <div class="res-card">
+            <span class="label">Gestur Terdeteksi</span>
+            <span id="res-mode3-gesture" class="val">-</span>
+          </div>
+          <div class="res-card">
+            <span class="label">Jumlah Tangan</span>
+            <span id="res-mode3-hand-count" class="val">0</span>
+          </div>
+          <div class="res-card">
+            <span class="label">System Performance</span>
+            <span id="res-mode3-fps" class="val" style="color: var(--neon-green);">Active (60 FPS)</span>
+          </div>
+        </div>
+
+        <!-- Panel Penjelasan Fitur Mode 3 -->
+        <div class="name-edit-panel">
+          <div class="name-edit-header">
+            <span>✨ Fitur 3D Particle System Pro</span>
+          </div>
+          <div class="feature-info-box">
+            <p><strong>🖐️ Tangan 1 Master:</strong> Tangan 1 mengunci kontrol rotasi 3D secara real-time & presisi.</p>
+            <p><strong>🚀 Tangan Maju & 5 Jari:</strong> Mengembangkan skala secara halus (*fluid lerp*) & meledakkan efek <em>Cosmic Supernova Burst</em>.</p>
+            <p><strong>🛡️ Tangan Mundur:</strong> Skala partikel tetap stabil di baseline normal (tidak akan menciut/kaku).</p>
+            <p><strong>☝️ 1 Jari (Telunjuk):</strong> Kontrol rotasi 360° tampilan 3D di udara.</p>
+            <p><strong>✌️ 2 Jari:</strong> Kemiringan Z-Plane Roll.</p>
+            <p><strong>👋 Kibasan Tangan:</strong> Usap horizontal tangan untuk berpindah ke bentuk 3D berikutnya!</p>
+            <p><strong>💫 15 Bentuk 3D Pro:</strong> 💖 REALISTIC LOVE 3D (Rainbow Rays & Star Dust), ⚡ STAR FORGE 3D, 🌍 BUMI TATA SURYA, ✨ PARTIKEL MZKYZAK, 🌌 GALAXY, 🌠 NEBULA, 🪐 SATURN, 🪷 LOTUS, 🪼 JELLYFISH, 🍩 TORUS, 🌪️ TORNADO, 🧬 DOUBLE HELIX, 🧊 CUBE, 🦋 BUTTERFLY, 🌸 PEACH BLOSSOM, ⭐ MZKYZAK STAR.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- PAGE 4: RetroLens Filter Tracker -->
+  <main id="page-mode4" class="page-view">
+    <div class="mode1-layout">
+      <div class="video-box-main">
+        <!-- Live Camera & Filter Canvas -->
+        <video id="video-mode4" autoplay muted playsinline></video>
+        <canvas id="overlay-mode4" class="retrolens-overlay"></canvas>
+
+        <!-- HUD: Filter selector bar -->
+        <div class="retrolens-hud">
+          <div class="retrolens-filter-bar" id="filter-bar-mode4">
+            <!-- Populated by JS -->
+          </div>
+          <div class="retrolens-info">
+            <span id="retrolens-filter-name">dual-tone</span>
+            <span class="retrolens-tip">👌 Pinch / 👊 Tinju = Ganti Filter</span>
+          </div>
+        </div>
+
+        <!-- Focus ring overlay (animated DOM elements) -->
+        <div id="focus-ring-container"></div>
+      </div>
+
+      <!-- Results & Feature Explanation Sidebar (Header Kanan) -->
+      <aside class="results-sidebar">
+        <div class="sidebar-header">
+          <h2>🎨 Status Hand Tracking Portal 3D</h2>
+        </div>
+
+        <div class="res-grid">
+          <div class="res-card">
+            <span class="label">Filter Aktif</span>
+            <span id="res-mode4-filter" class="val">🎨 DUAL-TONE</span>
+          </div>
+          <div class="res-card">
+            <span class="label">Bentuk Portal</span>
+            <span id="res-mode4-portal-type" class="val">Off (Tanpa Tangan)</span>
+          </div>
+          <div class="res-card">
+            <span class="label">Gestur Terdeteksi</span>
+            <span id="res-mode4-gesture" class="val">-</span>
+          </div>
+          <div class="res-card">
+            <span class="label">Jumlah Tangan</span>
+            <span id="res-mode4-hand-count" class="val">0</span>
+          </div>
+        </div>
+
+        <!-- Panel Penjelasan Fitur Mode 4 -->
+        <div class="name-edit-panel">
+          <div class="name-edit-header">
+            <span>✨ Fitur Hand tracking Portal 3D</span>
+          </div>
+          <div class="feature-info-box">
+            <p><strong>🖐️ Portal 4 Tangan:</strong> Support hingga 4 Tangan sekaligus (1, 2, 3, atau 4 Tangan)
+              secara real-time 60 FPS (Background tetap kamera bersih!).</p>
+            <p><strong>👌 Cubit / Touch:</strong> Cubit Jempol & Kelingking atau Sentuh 2 Telunjuk untuk ganti ke
+              filter
+              berikutnya.</p>
+            <p><strong>✨ 11 Filter Retro:</strong> DUAL-TONE, MONO, PIXELATE, INVERT, SEPIA, BLUR, THERMAL,
+              SKETCH,
+              GLITCH, NEON, RAINBOW.</p>
+            <p><strong>⌨️ Shortcut:</strong> Tekan `N` (Next Filter), `P` (Prev Filter), `S` (Screenshot HD).</p>
+          </div>
+        </div>
+
+        <!-- Panel Toggle MP3 & Audio Mode 4 -->
+        <div class="name-edit-panel" style="margin-top: 15px;">
+          <div class="name-edit-header">
+            <span>🎵 Musik & Audio Hand Tracking</span>
+          </div>
+          <div class="feature-info-box" style="margin-bottom: 10px;">
+            <p style="font-size: 0.8rem; margin: 0;"><strong>🎶 Auto Music:</strong> Musik otomatis menyala saat tangan terdeteksi di kamera!</p>
+          </div>
+          <div class="audio-controls-box">
+            <div style="margin-bottom: 10px;">
+              <button id="btn-toggle-mode4-audio" class="btn-primary" onclick="toggleMode4Audio()" style="width: 100%; padding: 8px 10px; font-size: 0.82rem; font-weight: 700; color: #ffffff; background: linear-gradient(135deg, #a855f7, #6366f1); border: none; text-shadow: 0 1px 4px rgba(0,0,0,0.5);">
+                🎵 Play Musik MP3
+              </button>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+              <span class="label" style="font-size: 0.78rem; color: var(--text-muted);">Volume:</span>
+              <input type="range" id="mode4-audio-volume" min="0" max="100" value="80" oninput="updateMode4AudioVolume(this.value)" style="flex: 1; cursor: pointer; accent-color: #a855f7;">
+              <span id="mode4-volume-val" style="font-size: 0.78rem; color: #a855f7; width: 32px; font-weight: 600;">80%</span>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 0.78rem; color: var(--text-muted);">
+              <input type="checkbox" id="chk-auto-sync-mode4-audio" checked onchange="toggleAutoSyncMode4Audio(this.checked)" style="cursor: pointer; width: 14px; height: 14px; accent-color: #a855f7;">
+              <label for="chk-auto-sync-mode4-audio" style="cursor: pointer;">Auto-Play saat Tangan Terdeteksi</label>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Modal Panduan & Info (Toggle Kiri Atas Header) -->
+  <div id="guide-modal" class="guide-modal-overlay" onclick="closeGuideModalOutside(event)">
+    <div class="guide-modal-card" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2>📖 Panduan Cara Bermain & Fitur Lengkap Website</h2>
+        <button class="modal-close-btn" onclick="toggleGuideModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="guide-section">
+          <h3>📹 1. Cara Menyalakan Kamera</h3>
+          <p>• Klik <strong>Allow / Izinkan</strong> saat browser meminta akses webcam.</p>
+          <p>• Pastikan posisi tangan berada di depan kamera dengan pencahayaan ruangan yang memadai.</p>
+          <p>• Website secara otomatis mendeteksi hingga <strong>4 Tangan sekaligus</strong> secara real-time (60 FPS).</p>
+        </div>
+
+        <div class="guide-section">
+          <h3>🎮 2. Panduan Lengkap Mode & Gestur Tangan</h3>
+          
+          <p><strong>👤 Mode 1/4: Panggil Nama Custom (TTS AI Voice Synthesizer)</strong><br>
+          Tunjukkan 0 jari (Tinju 👊) hingga 5 jari (🖐️) ke kamera. Suara AI Bahasa Indonesia akan memanggil nama Anda secara otomatis. Anda bisa mengedit nama custom di panel sebelah kanan.</p>
+          
+          <p><strong>📸 Mode 2/4: Photo Blur Trend (Portrait Bokeh Depth Effect & MP3 Audio Player)</strong><br>
+          Tunjukkan pose ✌️ 2 Jari (Telunjuk + Tengah) ke kamera untuk memicu bokeh depth blur latar belakang & pemutar musik MP3 otomatis. Dilengkapi tombol Upload MP3 Custom, Mute/Play Toggle, & Auto-Sync Audio.</p>
+          
+          <p><strong>🌌 Mode 3/4: 3D Animasi Kosmik (NovaSpark 3D Engine Pro)</strong><br>
+          • <strong>🖐️ Tangan 1 Master:</strong> Mengunci kontrol posisi & rotasi 3D real-time.<br>
+          • <strong>🚀 Tangan Maju / 5 Jari Open:</strong> Mengembangkan skala secara halus (*fluid lerp*) & meledakkan <em>Cosmic Supernova Burst</em>.<br>
+          • <strong>🛡️ Tangan Mundur:</strong> Skala partikel stabil di baseline normal (`1.0`), <strong>tidak akan menciut / kaku</strong>.<br>
+          • <strong>☝️ 1 Jari (Telunjuk):</strong> Kontrol rotasi presisi 360° tampilan 3D di udara.<br>
+          • <strong>✌️ 2 Jari:</strong> Mengatur kemiringan rotasi Z-Plane Roll.<br>
+          • <strong>👋 Kibasan Tangan:</strong> Usap horizontal tangan di udara untuk berpindah ke bentuk 3D berikutnya!<br>
+          • <strong>💫 15 Bentuk 3D Pro:</strong> REALISTIC LOVE 3D (Rainbow Rays & Star Dust), STAR FORGE 3D, BUMI TATA SURYA, PARTIKEL MZKYZAK, GALAXY, NEBULA, SATURN, LOTUS, JELLYFISH, TORUS, TORNADO, DOUBLE HELIX, CUBE, BUTTERFLY, PEACH BLOSSOM, MZKYZAK STAR.</p>
+          
+          <p><strong>🎨 Mode 4/4: Hand Tracking Filter Portal (RetroLens Engine Pro)</strong><br>
+          • <strong>👊 Dual Fist (2 Tinju 👊👊 / Key `C`):</strong> Beralih antara <em>3D Mesh Portal Mode</em> dan <em>2D Quad / Bowtie Mode</em>.<br>
+          • <strong>👌 Cubit / Touch (Jempol + Kelingking / Sentuh 2 Telunjuk / Key `N` & `P`):</strong> Ganti ke filter retro berikutnya/sebelumnya.<br>
+          • <strong>🎯 Animasi Ujung Jari:</strong> Penanda lingkaran neon bercahaya & gelombang radar animasi berdenyut pada setiap ujung jari.<br>
+          • <strong>✨ 14 Filter Retro:</strong> DUAL-TONE, THERMAL, SKETCH, PIXELATE, GLITCH, INVERT, RED-CHANNEL, EDGE CANNY, BLUR, CARTOON, RAINBOW WAVE, MONO, NEON, SEPIA.</p>
+        </div>
+
+        <div class="guide-section">
+          <h3>🎛️ 3. Panduan Tombol & Toggle Control UI</h3>
+          <p>• <strong>📖 Toggle Panduan (Header Kiri):</strong> Membuka & menutup jendela modal panduan ini kapan saja.</p>
+          <p>• <strong>🌙 / ☀️ Toggle Theme (Header Kiri):</strong> Berganti instan antara Mode Gelap (Cosmic Dark) dan Mode Terang (High Contrast Light Mode) dengan penyesuaian warna teks otomatis.</p>
+          <p>• <strong>🎮 Toggle Tab Mode (Header Center):</strong> Berpindah cepat antar 4 Mode Utama (Mode 1, Mode 2, Mode 3, Mode 4).</p>
+          <p>• <strong>🔊 / 🔇 Toggle Suara AI (Sidebar Mode 1):</strong> Mengaktifkan atau mematikan fitur panggilan nama otomatis (TTS Synthesizer).</p>
+          <p>• <strong>📷 Toggle Select Kamera (Sidebar):</strong> Memilih & beralih input antar perangkat webcam/kamera USB yang terhubung.</p>
+          <p>• <strong>👊 Toggle Mesh 3D / 2D Quad (Mode 4):</strong> Gunakan tombol <em>Toggle Mesh/Quad Mode</em>, gestur 2 Tinju 👊👊, atau tekan tombol <strong>`C`</strong> pada keyboard.</p>
+          <p>• <strong>🎨 Carousel Filter Bar (Mode 4):</strong> Klik langsung pada pill filter atau gunakan tombol panah untuk memilih 14 efek visual retro.</p>
+        </div>
+
+        <div class="guide-section">
+          <h3>⌨️ 4. Shortcut Keyboard</h3>
+          <p>• <strong>`N`</strong> : Ganti ke Filter Selanjutnya (Next Filter Mode 4)</p>
+          <p>• <strong>`P`</strong> : Ganti ke Filter Sebelumnya (Prev Filter Mode 4)</p>
+          <p>• <strong>`C`</strong> : Toggle Mode 3D Mesh / 2D Quad (Mode 4)</p>
+          <p>• <strong>`S`</strong> : Ambil Screenshot & Simpan Foto HD Instant (Mode 4)</p>
+        </div>
+
+        <div class="guide-section">
+          <h3>✨ 5. Manfaat & Fitur Utama Web App</h3>
+          <p>• <strong>Interaksi Bebas Sentuh (Touchless Control):</strong> Mengontrol visual, rotasi 3D, dan filter kamera hanya dengan gerak-gerik gestur tangan tanpa menyentuh layar.</p>
+          <p>• <strong>Super Smooth 60 FPS Engine:</strong> Pemrosesan gambar & tracking dilakukan 100% lokal di browser menggunakan WebGL GPU acceleration tanpa delay.</p>
+          <p>• <strong>Multi-Hand Tracking (Up to 4 Hands):</strong> Mendeteksi hingga 4 tangan sekaligus dengan pemisahan kontrol (Tangan 1 Master Referensi Rotasi).</p>
+          <p>• <strong>Dual Theme Smart Contrast:</strong> Teks dan elemen UI otomatis berubah ke kontras tinggi saat berpindah ke Mode Terang.</p>
+        </div>
+
+        <div class="guide-section">
+          <h3>💻 6. Pembuatan Website & Hak Cipta</h3>
+          <p><strong>Pengembang:</strong> Dibuat & dirancang oleh <strong>Taufiq Ikhsan Muzaky (mzkyzak)</strong>.</p>
+          <p><strong>Teknologi:</strong> MediaPipe Hands (Multi-Hand), TensorFlow BlazeFace, WebGL & Canvas 2D Engine, Web Speech API (TTS), HTML5, CSS3 Glassmorphism, & JavaScript ES6.</p>
+          <p><strong>Hak Cipta:</strong> &copy; All Rights Reserved Taufiq Ikhsan Muzaky.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS Modules -->
+  <script src="particles.js"></script>
+  <script src="script.js"></script>
 </body>
+
 </html>
-
-
