@@ -85,10 +85,14 @@ async function initCamera() {
     const v1 = document.getElementById("video-mode1");
     const v2 = document.getElementById("video-mode2");
     const v3 = document.getElementById("video-mode3");
+    const v4 = document.getElementById("video-mode4");
+    const v5 = document.getElementById("video-mode5");
 
     if (v1) v1.srcObject = mediaStream;
     if (v2) v2.srcObject = mediaStream;
     if (v3) v3.srcObject = mediaStream;
+    if (v4) v4.srcObject = mediaStream;
+    if (v5) v5.srcObject = mediaStream;
 
     return true;
   } catch (err) {
@@ -113,7 +117,7 @@ async function loadModels() {
       });
     }
     if (loading) loading.style.display = "none";
-    console.log("✅ MediaPipe & BlazeFace models loaded successfully!");
+    console.log("Ã¢Å“â€¦ MediaPipe & BlazeFace models loaded successfully!");
     return true;
   } catch (err) {
     if (loading) loading.style.display = "none";
@@ -128,7 +132,7 @@ function countFingers(k) {
   let c = 0;
   if (k[4].x > k[3].x) c++; // Thumb
   if (k[8].y < k[6].y) c++; // Index
-  if (k[12].y < l[10].y) c++; // Middle (safe check)
+  if (k[12].y < k[10].y) c++; // Middle
   if (k[16].y < k[14].y) c++; // Ring
   if (k[20].y < k[18].y) c++; // Pinky
   return c;
@@ -142,6 +146,7 @@ async function processFrame() {
   if (currentMode === "mode2") activeVideo = document.getElementById("video-mode2");
   if (currentMode === "mode3") activeVideo = document.getElementById("video-mode3");
   if (currentMode === "mode4") activeVideo = document.getElementById("video-mode4");
+  if (currentMode === "mode5") activeVideo = document.getElementById("video-mode5");
 
   let faces = [];
   let hands = [];
@@ -164,6 +169,8 @@ async function processFrame() {
     renderMode3(faces, hands);
   } else if (currentMode === "mode4") {
     renderMode4(faces, hands);
+  } else if (currentMode === "mode5") {
+    renderMode5(faces, hands);
   }
 
   requestAnimationFrame(processFrame);
@@ -256,7 +263,7 @@ function renderMode1(faces, hands) {
 }
 
 // MODE 2: Photo Blur Trend (Portrait Depth Bokeh)
-// BLUR hanya aktif saat ✌️ 2 jari (telunjuk + jari tengah naik, lainnya turun)
+// BLUR hanya aktif saat Ã¢Å“Å’Ã¯Â¸Â 2 jari (telunjuk + jari tengah naik, lainnya turun)
 function renderMode2(faces, hands) {
   const videoElem = document.getElementById("video-mode2");
   const blurCanvas = document.getElementById("overlay-mode2");
@@ -270,7 +277,7 @@ function renderMode2(faces, hands) {
 
   ctx.clearRect(0, 0, blurCanvas.width, blurCanvas.height);
 
-  // Deteksi ✌️ Peace / 2 jari: HANYA telunjuk & jari tengah naik, jari manis & kelingking turun
+  // Deteksi Ã¢Å“Å’Ã¯Â¸Â Peace / 2 jari: HANYA telunjuk & jari tengah naik, jari manis & kelingking turun
   let isPeaceGesture = false;
   let peaceHand = null;
 
@@ -289,11 +296,11 @@ function renderMode2(faces, hands) {
 
   const isBlurActive = isPeaceGesture || isPhotoBlurActive;
 
-  // Terapkan blur HANYA kalau gesture ✌️ 2 jari terdeteksi
+  // Terapkan blur HANYA kalau gesture Ã¢Å“Å’Ã¯Â¸Â 2 jari terdeteksi
   if (isBlurActive) {
     videoElem.classList.add("blurred");
 
-    // Overlay titik neon di atas tangan yang gesture ✌️
+    // Overlay titik neon di atas tangan yang gesture Ã¢Å“Å’Ã¯Â¸Â
     if (peaceHand) {
       const k = peaceHand;
       ctx.save();
@@ -323,7 +330,7 @@ function renderMode2(faces, hands) {
       ctx.shadowBlur = 0;
       ctx.font = "bold 18px Outfit, sans-serif";
       ctx.fillStyle = "#ffffff";
-      ctx.fillText("✌️ Photo Blur ON", 16, 32);
+      ctx.fillText("Ã¢Å“Å’Ã¯Â¸Â Photo Blur ON", 16, 32);
 
       ctx.restore();
     }
@@ -334,7 +341,7 @@ function renderMode2(faces, hands) {
     if (hands.length > 0) {
       ctx.font = "bold 16px Outfit, sans-serif";
       ctx.fillStyle = "rgba(255,255,255,0.6)";
-      ctx.fillText("✌️ Tunjuk 2 jari untuk blur", 16, 32);
+      ctx.fillText("Ã¢Å“Å’Ã¯Â¸Â Tunjuk 2 jari untuk blur", 16, 32);
     }
   }
 
@@ -345,11 +352,11 @@ function renderMode2(faces, hands) {
   const elHandCount = document.getElementById("res-mode2-hand-count");
 
   if (elBlurStatus) {
-    elBlurStatus.textContent = isBlurActive ? "✨ AKTIF (Bokeh)" : "Off (Butuh ✌️ 2 Jari)";
+    elBlurStatus.textContent = isBlurActive ? "Ã¢Å“Â¨ AKTIF (Bokeh)" : "Off (Butuh Ã¢Å“Å’Ã¯Â¸Â 2 Jari)";
     elBlurStatus.style.color = isBlurActive ? "var(--neon-green)" : "var(--neon-cyan)";
   }
   if (elGesture) {
-    elGesture.textContent = isPeaceGesture ? "✌️ 2 Jari (Peace)" : (hands.length > 0 ? "Tangan Terdeteksi" : "-");
+    elGesture.textContent = isPeaceGesture ? "Ã¢Å“Å’Ã¯Â¸Â 2 Jari (Peace)" : (hands.length > 0 ? "Tangan Terdeteksi" : "-");
   }
   if (elFaceCount) elFaceCount.textContent = faces.length;
   if (elHandCount) elHandCount.textContent = hands.length;
@@ -378,7 +385,7 @@ mode2AudioElement.onplay = () => {
 mode2AudioElement.onpause = () => {
   try {
     mode2AudioElement.currentTime = 0;
-  } catch (e) {}
+  } catch (e) { }
   isMode2AudioPlaying = false;
   updateMode2AudioUI();
 };
@@ -416,7 +423,7 @@ function stopSynthFallback() {
   if (mode2SynthGain && mode2SynthAudioCtx) {
     try {
       mode2SynthGain.gain.setValueAtTime(0, mode2SynthAudioCtx.currentTime);
-    } catch (e) {}
+    } catch (e) { }
   }
   isMode2AudioPlaying = false;
   updateMode2AudioUI();
@@ -456,10 +463,10 @@ function handleMode2AudioUpload(e) {
     const url = URL.createObjectURL(file);
     mode2AudioElement.src = url;
     isUsingCustomMP3 = true;
-    
+
     const titleEl = document.getElementById("mode2-audio-title");
     if (titleEl) titleEl.textContent = file.name;
-    
+
     mode2AudioElement.currentTime = 0;
     mode2AudioElement.play().catch(err => console.log("Audio upload autoplay error:", err));
   }
@@ -471,7 +478,7 @@ function updateMode2AudioVolume(val) {
   if (mode2SynthGain && mode2SynthAudioCtx) {
     try {
       mode2SynthGain.gain.setValueAtTime(vol * 0.12, mode2SynthAudioCtx.currentTime);
-    } catch (e) {}
+    } catch (e) { }
   }
   const valEl = document.getElementById("mode2-volume-val");
   if (valEl) valEl.textContent = Math.round(vol * 100) + "%";
@@ -484,12 +491,12 @@ function toggleAutoSyncAudio(enabled) {
 function updateMode2AudioUI() {
   const btn = document.getElementById("btn-toggle-mode2-audio");
   if (btn) {
-    btn.textContent = isMode2AudioPlaying ? "⏸️ Mute Audio MP3" : "🎵 Play Musik MP3";
+    btn.textContent = isMode2AudioPlaying ? "Ã¢ÂÂ¸Ã¯Â¸Â Mute Audio MP3" : "Ã°Å¸Å½Âµ Play Musik MP3";
     btn.style.color = "#ffffff";
     btn.style.fontWeight = "700";
     btn.style.textShadow = "0 1px 4px rgba(0,0,0,0.5)";
-    btn.style.background = isMode2AudioPlaying 
-      ? "linear-gradient(135deg, #ff0055, #ff0090)" 
+    btn.style.background = isMode2AudioPlaying
+      ? "linear-gradient(135deg, #ff0055, #ff0090)"
       : "linear-gradient(135deg, var(--neon-cyan), var(--neon-blue))";
   }
 }
@@ -504,7 +511,7 @@ function syncMode2AudioWithBlur(isBlurActive) {
     if (!isMode2AudioPlaying) {
       if (isUsingCustomMP3 && mode2AudioElement.src) {
         mode2AudioElement.currentTime = 0;
-        mode2AudioElement.play().catch(() => {});
+        mode2AudioElement.play().catch(() => { });
       } else {
         playSynthFallback();
       }
@@ -530,7 +537,7 @@ mode4AudioElement.onplay = () => {
 mode4AudioElement.onpause = () => {
   try {
     mode4AudioElement.currentTime = 0;
-  } catch (e) {}
+  } catch (e) { }
   isMode4AudioPlaying = false;
   updateMode4AudioUI();
 };
@@ -559,12 +566,12 @@ function toggleAutoSyncMode4Audio(enabled) {
 function updateMode4AudioUI() {
   const btn = document.getElementById("btn-toggle-mode4-audio");
   if (btn) {
-    btn.textContent = isMode4AudioPlaying ? "⏸️ Mute Audio MP3" : "🎵 Play Musik MP3";
+    btn.textContent = isMode4AudioPlaying ? "Ã¢ÂÂ¸Ã¯Â¸Â Mute Audio MP3" : "Ã°Å¸Å½Âµ Play Musik MP3";
     btn.style.color = "#ffffff";
     btn.style.fontWeight = "700";
     btn.style.textShadow = "0 1px 4px rgba(0,0,0,0.5)";
-    btn.style.background = isMode4AudioPlaying 
-      ? "linear-gradient(135deg, #ff0055, #ff0090)" 
+    btn.style.background = isMode4AudioPlaying
+      ? "linear-gradient(135deg, #ff0055, #ff0090)"
       : "linear-gradient(135deg, #a855f7, #6366f1)";
   }
 }
@@ -578,7 +585,7 @@ function syncMode4AudioWithHands(isHandDetected) {
   if (isHandDetected) {
     if (!isMode4AudioPlaying) {
       mode4AudioElement.currentTime = 0;
-      mode4AudioElement.play().catch(() => {});
+      mode4AudioElement.play().catch(() => { });
     }
   } else {
     if (isMode4AudioPlaying) {
@@ -590,26 +597,26 @@ function syncMode4AudioWithHands(isHandDetected) {
 
 
 // =====================================================
-// MODE 3: NovaSpark 3D Engine — Professional Particle Interaction
+// MODE 3: NovaSpark 3D Engine Ã¢â‚¬â€ Professional Particle Interaction
 // =====================================================
 
 const M3_SHAPES = [
-  { id: "HEART", name: "REALISTIC LOVE 3D", emoji: "💖" },
-  { id: "STAR_FORGE", name: "STAR FORGE 3D", emoji: "⚡" },
-  { id: "EARTH_SOLAR", name: "BUMI TATA SURYA", emoji: "🌍" },
-  { id: "MZKYZAK_NAME", name: "PARTIKEL MZKYZAK", emoji: "✨" },
-  { id: "GALAXY", name: "GALAXY", emoji: "🌌" },
-  { id: "NEBULA", name: "NEBULA", emoji: "🌠" },
-  { id: "SATURN", name: "SATURN", emoji: "🪐" },
-  { id: "LOTUS", name: "LOTUS", emoji: "🪷" },
-  { id: "JELLYFISH", name: "JELLYFISH", emoji: "🪼" },
-  { id: "TORUS", name: "TORUS", emoji: "🍩" },
-  { id: "TORNADO", name: "TORNADO", emoji: "🌪️" },
-  { id: "DOUBLEHELIX", name: "DOUBLE HELIX", emoji: "🧬" },
-  { id: "CUBE", name: "CUBE", emoji: "🧊" },
-  { id: "BUTTERFLY", name: "BUTTERFLY", emoji: "🦋" },
-  { id: "PEACHBLOSSOM", name: "PEACH BLOSSOM", emoji: "🌸" },
-  { id: "MZKYZAK_STAR", name: "MZKYZAK STAR", emoji: "⭐" },
+  { id: "HEART", name: "REALISTIC LOVE 3D", emoji: "Ã°Å¸â€™â€“" },
+  { id: "STAR_FORGE", name: "STAR FORGE 3D", emoji: "Ã¢Å¡Â¡" },
+  { id: "EARTH_SOLAR", name: "BUMI TATA SURYA", emoji: "Ã°Å¸Å’Â" },
+  { id: "MZKYZAK_NAME", name: "PARTIKEL MZKYZAK", emoji: "Ã¢Å“Â¨" },
+  { id: "GALAXY", name: "GALAXY", emoji: "Ã°Å¸Å’Å’" },
+  { id: "NEBULA", name: "NEBULA", emoji: "Ã°Å¸Å’Â " },
+  { id: "SATURN", name: "SATURN", emoji: "Ã°Å¸ÂªÂ" },
+  { id: "LOTUS", name: "LOTUS", emoji: "Ã°Å¸ÂªÂ·" },
+  { id: "JELLYFISH", name: "JELLYFISH", emoji: "Ã°Å¸ÂªÂ¼" },
+  { id: "TORUS", name: "TORUS", emoji: "Ã°Å¸ÂÂ©" },
+  { id: "TORNADO", name: "TORNADO", emoji: "Ã°Å¸Å’ÂªÃ¯Â¸Â" },
+  { id: "DOUBLEHELIX", name: "DOUBLE HELIX", emoji: "Ã°Å¸Â§Â¬" },
+  { id: "CUBE", name: "CUBE", emoji: "Ã°Å¸Â§Å " },
+  { id: "BUTTERFLY", name: "BUTTERFLY", emoji: "Ã°Å¸Â¦â€¹" },
+  { id: "PEACHBLOSSOM", name: "PEACH BLOSSOM", emoji: "Ã°Å¸Å’Â¸" },
+  { id: "MZKYZAK_STAR", name: "MZKYZAK STAR", emoji: "Ã¢Â­Â" },
 ];
 
 let m3_shapeIdx = 0;
@@ -739,7 +746,7 @@ function renderMode3(faces, hands) {
       if (isFiveFingers && palmSpeed > 35 && (now - m3_lastSlapTime > 600)) {
         m3_lastSlapTime = now;
         m3_setShape((m3_shapeIdx + 1) % M3_SHAPES.length);
-        detectedGesture = "🖐️ Kibasan Tangan 1 (Next Shape)";
+        detectedGesture = "Ã°Å¸â€“ÂÃ¯Â¸Â Kibasan Tangan 1 (Next Shape)";
       }
     }
     m3_prevPalmX = pts0[9].x;
@@ -751,13 +758,13 @@ function renderMode3(faces, hands) {
         addRotY += 0.02;
         addRotX += 0.01;
         targetScale = 1.35 * depthScale;
-        detectedGesture = "💥 5 Jari Open (Cosmic Supernova)";
+        detectedGesture = "Ã°Å¸â€™Â¥ 5 Jari Open (Cosmic Supernova)";
       } else if (forwardScale > 0.35) {
         isBurst = true;
         addRotY += 0.018;
         addRotX += 0.008;
         targetScale = 1.25 * depthScale;
-        detectedGesture = "🚀 Tangan 1 Maju (Forward Motion)";
+        detectedGesture = "Ã°Å¸Å¡â‚¬ Tangan 1 Maju (Forward Motion)";
       } else if (isTwoFingers) {
         // Plane Roll (Z-axis rotation)
         const angle = Math.atan2(pts0[8].y - pts0[12].y, pts0[8].x - pts0[12].x);
@@ -769,7 +776,7 @@ function renderMode3(faces, hands) {
         }
         m3_prevRollAngle = angle;
         targetScale = 1.1;
-        detectedGesture = "✌️ 2 Jari (Plane Roll Z)";
+        detectedGesture = "Ã¢Å“Å’Ã¯Â¸Â 2 Jari (Plane Roll Z)";
       } else if (isIndexOnly) {
         // Fine Precision View Rotation (Index Tip)
         if (m3_prevFingerPos !== null) {
@@ -780,10 +787,10 @@ function renderMode3(faces, hands) {
         }
         m3_prevFingerPos = { x: pts0[8].x, y: pts0[8].y };
         targetScale = 1.15;
-        detectedGesture = "☝️ 1 Jari (Precision Rotation)";
+        detectedGesture = "Ã¢ËœÂÃ¯Â¸Â 1 Jari (Precision Rotation)";
       } else {
         targetScale = depthScale;
-        detectedGesture = `🖐️ Tangan 1 Ref (${hands.length} Total Hand${hands.length > 1 ? 's' : ''})`;
+        detectedGesture = `Ã°Å¸â€“ÂÃ¯Â¸Â Tangan 1 Ref (${hands.length} Total Hand${hands.length > 1 ? 's' : ''})`;
       }
     }
 
@@ -793,11 +800,11 @@ function renderMode3(faces, hands) {
 
     // Draw Hand Tracking Overlay for ALL DETECTED HANDS (Tangan 1 as primary gold/cyan reference)
     const skeletonPairs = [
-      [0,1],[1,2],[2,3],[3,4],
-      [0,5],[5,6],[6,7],[7,8],
-      [5,9],[9,10],[10,11],[11,12],
-      [9,13],[13,14],[14,15],[15,16],
-      [13,17],[17,18],[18,19],[19,20],[0,17]
+      [0, 1], [1, 2], [2, 3], [3, 4],
+      [0, 5], [5, 6], [6, 7], [7, 8],
+      [5, 9], [9, 10], [10, 11], [11, 12],
+      [9, 13], [13, 14], [14, 15], [15, 16],
+      [13, 17], [17, 18], [18, 19], [19, 20], [0, 17]
     ];
 
     hands.forEach((h, hIdx) => {
@@ -834,7 +841,7 @@ function renderMode3(faces, hands) {
         ctx.fillStyle = "#00f0ff";
         ctx.shadowColor = "#000000";
         ctx.shadowBlur = 4;
-        ctx.fillText("🖐️ TANGAN 1 (REF ROTASI)", ptsH[0].x - 40, ptsH[0].y + 25);
+        ctx.fillText("Ã°Å¸â€“ÂÃ¯Â¸Â TANGAN 1 (REF ROTASI)", ptsH[0].x - 40, ptsH[0].y + 25);
       }
       ctx.restore();
     });
@@ -865,7 +872,7 @@ function renderMode3(faces, hands) {
     ctx.textAlign = "center";
     ctx.shadowColor = "#00ff99";
     ctx.shadowBlur = 20;
-    ctx.fillText("⭐ MZKYZAK BINTANG KECIL 3D ⭐", W / 2, 45);
+    ctx.fillText("Ã¢Â­Â MZKYZAK BINTANG KECIL 3D Ã¢Â­Â", W / 2, 45);
     ctx.restore();
   }
 
@@ -918,7 +925,7 @@ function renderMode3(faces, hands) {
 }
 
 // =====================================================
-// MODE 4: RetroLens — Hand Portal Filter (python-handtrack)
+// MODE 4: RetroLens Ã¢â‚¬â€ Hand Portal Filter (python-handtrack)
 // =====================================================
 
 let rl_filterIdx = 0;
@@ -938,17 +945,17 @@ function rl_showToast(msg) {
 
 // Filter bank matching python-handtrack main.py & Retrolens
 const RETROLENS_FILTERS = [
-  { id: "dual-tone", name: "DUAL-TONE", emoji: "🎨", fn: applyDualTone },
-  { id: "mono", name: "MONO", emoji: "⚫", fn: applyMono },
-  { id: "pixelate", name: "PIXELATE", emoji: "🟦", fn: applyPixelate },
-  { id: "invert", name: "INVERT", emoji: "🔄", fn: applyInvert },
-  { id: "sepia", name: "SEPIA", emoji: "📜", fn: applySepia },
-  { id: "blur", name: "BLUR", emoji: "🌫️", fn: applyBlur },
-  { id: "thermal", name: "THERMAL", emoji: "🌡️", fn: applyThermal },
-  { id: "sketch", name: "SKETCH", emoji: "✏️", fn: applySketch },
-  { id: "glitch", name: "GLITCH", emoji: "⚡", fn: applyGlitch },
-  { id: "neon", name: "NEON", emoji: "🔲", fn: applyNeon },
-  { id: "rainbow", name: "RAINBOW", emoji: "🌈", fn: applyRainbowWave },
+  { id: "dual-tone", name: "DUAL-TONE", emoji: "Ã°Å¸Å½Â¨", fn: applyDualTone },
+  { id: "mono", name: "MONO", emoji: "Ã¢Å¡Â«", fn: applyMono },
+  { id: "pixelate", name: "PIXELATE", emoji: "Ã°Å¸Å¸Â¦", fn: applyPixelate },
+  { id: "invert", name: "INVERT", emoji: "Ã°Å¸â€â€ž", fn: applyInvert },
+  { id: "sepia", name: "SEPIA", emoji: "Ã°Å¸â€œÅ“", fn: applySepia },
+  { id: "blur", name: "BLUR", emoji: "Ã°Å¸Å’Â«Ã¯Â¸Â", fn: applyBlur },
+  { id: "thermal", name: "THERMAL", emoji: "Ã°Å¸Å’Â¡Ã¯Â¸Â", fn: applyThermal },
+  { id: "sketch", name: "SKETCH", emoji: "Ã¢Å“ÂÃ¯Â¸Â", fn: applySketch },
+  { id: "glitch", name: "GLITCH", emoji: "Ã¢Å¡Â¡", fn: applyGlitch },
+  { id: "neon", name: "NEON", emoji: "Ã°Å¸â€Â²", fn: applyNeon },
+  { id: "rainbow", name: "RAINBOW", emoji: "Ã°Å¸Å’Ë†", fn: applyRainbowWave },
 ];
 
 function rl_initFilterBar() {
@@ -1370,14 +1377,14 @@ function renderMode4(faces, hands) {
   if (fist_count >= 2 && now - rl_lastModeToggleTime > 1200) {
     rl_is3DMode = !rl_is3DMode;
     rl_lastModeToggleTime = now;
-    rl_showToast(`👊 DUAL FIST: Switched to ${rl_is3DMode ? "3D Mesh Mode" : "2D Quad Mode"}`);
+    rl_showToast(`Ã°Å¸â€˜Å  DUAL FIST: Switched to ${rl_is3DMode ? "3D Mesh Mode" : "2D Quad Mode"}`);
   }
 
   // Filter Switch Trigger with cooldown
   if (change_filter && now - rl_lastPinchTime > 400) {
     rl_setFilter((rl_filterIdx + 1) % RETROLENS_FILTERS.length);
     rl_lastPinchTime = now;
-    rl_showToast("👌 FILTER Switched: " + RETROLENS_FILTERS[rl_filterIdx].name);
+    rl_showToast("Ã°Å¸â€˜Å’ FILTER Switched: " + RETROLENS_FILTERS[rl_filterIdx].name);
   }
 
   // --- RENDER PORTAL FILTER PIPELINE MATCHING PYTHON RETROLENS ---
@@ -1489,9 +1496,9 @@ function renderMode4(faces, hands) {
   ctx.shadowColor = "#000000";
   ctx.shadowBlur = 4;
   const modeStr = rl_is3DMode ? "3D Mesh Portal" : (is_bowtie ? "2D Bowtie Quad" : "2D Clean Quad");
-  ctx.fillText(`MODE: ${modeStr} [2 Fist 👊 / Key 'C']`, 14, 28);
+  ctx.fillText(`MODE: ${modeStr} [2 Fist Ã°Å¸â€˜Å  / Key 'C']`, 14, 28);
   ctx.fillStyle = "#00ffff";
-  ctx.fillText(`FILTER: ${activeFilter.name} [Pinch 👌 / Key 'N'/'P']`, 14, 50);
+  ctx.fillText(`FILTER: ${activeFilter.name} [Pinch Ã°Å¸â€˜Å’ / Key 'N'/'P']`, 14, 50);
   ctx.restore();
 
   // --- Toast Alert Popup ---
@@ -1514,7 +1521,7 @@ function renderMode4(faces, hands) {
     ctx.textAlign = "center";
     ctx.shadowColor = "#000";
     ctx.shadowBlur = 6;
-    ctx.fillText("👋 Bentangkan tangan lu (hingga 4 tangan) untuk membuka portal filter retro! 🙂", cw / 2, ch - 90);
+    ctx.fillText("Ã°Å¸â€˜â€¹ Bentangkan tangan lu (hingga 4 tangan) untuk membuka portal filter retro! Ã°Å¸â„¢â€š", cw / 2, ch - 90);
     ctx.restore();
   }
 
@@ -1526,161 +1533,837 @@ function renderMode4(faces, hands) {
 
   if (elFilterName) elFilterName.textContent = activeFilter.emoji + " " + activeFilter.name;
   if (elPortalType) {
-    elPortalType.textContent = scaledHands.length > 0 ? `✨ ${modeStr} (${scaledHands.length} Tangan)` : "Off (Tanpa Tangan)";
+    elPortalType.textContent = scaledHands.length > 0 ? `Ã¢Å“Â¨ ${modeStr} (${scaledHands.length} Tangan)` : "Off (Tanpa Tangan)";
     elPortalType.style.color = scaledHands.length > 0 ? "var(--neon-green)" : "var(--neon-cyan)";
   }
   if (elGesture) {
-    elGesture.textContent = fist_count >= 2 ? "👊 Dual Fist (Toggle Mode)" : (change_filter ? "👌 Pinch (Switch Filter)" : (scaledHands.length > 0 ? `${scaledHands.length} Tangan Terdeteksi` : "-"));
+    elGesture.textContent = fist_count >= 2 ? "Ã°Å¸â€˜Å  Dual Fist (Toggle Mode)" : (change_filter ? "Ã°Å¸â€˜Å’ Pinch (Switch Filter)" : (scaledHands.length > 0 ? `${scaledHands.length} Tangan Terdeteksi` : "-"));
   }
   if (elHandCount) elHandCount.textContent = hands.length;
 }
 
-  // Global Keyboard listener for Mode 4 RetroLens controls
-  window.addEventListener("keydown", (e) => {
-    if (currentMode !== "mode4") return;
-    const key = e.key.toLowerCase();
-    if (key === "n") {
-      rl_setFilter((rl_filterIdx + 1) % RETROLENS_FILTERS.length);
-      rl_showToast("👌 NEXT FILTER: " + RETROLENS_FILTERS[rl_filterIdx].name);
-    } else if (key === "p") {
-      rl_setFilter((rl_filterIdx - 1 + RETROLENS_FILTERS.length) % RETROLENS_FILTERS.length);
-      rl_showToast("👌 PREV FILTER: " + RETROLENS_FILTERS[rl_filterIdx].name);
-    } else if (key === "s") {
-      const canvas = document.getElementById("overlay-mode4");
-      if (canvas) {
-        const link = document.createElement("a");
-        link.download = `retrolens_${Date.now()}.png`;
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-        rl_showToast("📸 SNAPSHOT SAVED!");
-      }
+// Global Keyboard listener for Mode 4 RetroLens controls
+window.addEventListener("keydown", (e) => {
+  if (currentMode !== "mode4") return;
+  const key = e.key.toLowerCase();
+  if (key === "n") {
+    rl_setFilter((rl_filterIdx + 1) % RETROLENS_FILTERS.length);
+    rl_showToast("Ã°Å¸â€˜Å’ NEXT FILTER: " + RETROLENS_FILTERS[rl_filterIdx].name);
+  } else if (key === "p") {
+    rl_setFilter((rl_filterIdx - 1 + RETROLENS_FILTERS.length) % RETROLENS_FILTERS.length);
+    rl_showToast("Ã°Å¸â€˜Å’ PREV FILTER: " + RETROLENS_FILTERS[rl_filterIdx].name);
+  } else if (key === "s") {
+    const canvas = document.getElementById("overlay-mode4");
+    if (canvas) {
+      const link = document.createElement("a");
+      link.download = `retrolens_${Date.now()}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+      rl_showToast("Ã°Å¸â€œÂ¸ SNAPSHOT SAVED!");
     }
-  });
+  }
+});
 
-  // Tab Switcher Handler
-  function switchMode(mode) {
-    currentMode = mode;
+// Tab Switcher Handler
+function switchMode(mode) {
+  currentMode = mode;
 
-    document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
-    document.querySelectorAll(".page-view").forEach(page => page.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+  document.querySelectorAll(".page-view").forEach(page => page.classList.remove("active"));
 
-    const targetTab = document.getElementById(`tab-${mode}`);
-    const targetPage = document.getElementById(`page-${mode}`);
+  const targetTab = document.getElementById(`tab-${mode}`);
+  const targetPage = document.getElementById(`page-${mode}`);
 
-    if (targetTab) {
-      targetTab.classList.add("active");
-      targetTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  if (targetTab) {
+    targetTab.classList.add("active");
+    targetTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }
+  if (targetPage) targetPage.classList.add("active");
+
+  if (mode !== "mode2") {
+    if (mode2AudioElement && !mode2AudioElement.paused) {
+      mode2AudioElement.pause();
     }
-    if (targetPage) targetPage.classList.add("active");
-
-    if (mode !== "mode2") {
-      if (mode2AudioElement && !mode2AudioElement.paused) {
-        mode2AudioElement.pause();
-      }
-      stopSynthFallback();
+    stopSynthFallback();
+  }
+  if (mode !== "mode4") {
+    if (mode4AudioElement && !mode4AudioElement.paused) {
+      mode4AudioElement.pause();
     }
-    if (mode !== "mode4") {
-      if (mode4AudioElement && !mode4AudioElement.paused) {
-        mode4AudioElement.pause();
-      }
-    }
+  }
 
-    // Init Mode 3 NovaSpark engine on first view (replaces heavy Three.js approach)
-    if (mode === "mode3") {
-      // NovaSpark uses 2D canvas — no ThreeScene needed
-      // ParticleSystem is initialized lazily inside renderMode3
-      // Just connect the webcam preview
-      if (mediaStream) {
-        const v3 = document.getElementById("video-mode3");
-        if (v3 && !v3.srcObject) v3.srcObject = mediaStream;
-      }
-    }
-
-    // Connect video-mode3 to camera stream
-    if (mode === "mode3" && mediaStream) {
+  // Init Mode 3 NovaSpark engine on first view (replaces heavy Three.js approach)
+  if (mode === "mode3") {
+    // NovaSpark uses 2D canvas Ã¢â‚¬â€ no ThreeScene needed
+    // ParticleSystem is initialized lazily inside renderMode3
+    // Just connect the webcam preview
+    if (mediaStream) {
       const v3 = document.getElementById("video-mode3");
       if (v3 && !v3.srcObject) v3.srcObject = mediaStream;
     }
-
-    // Connect video-mode4 to camera stream
-    if (mode === "mode4" && mediaStream) {
-      const v4 = document.getElementById("video-mode4");
-      if (v4 && !v4.srcObject) v4.srcObject = mediaStream;
-      rl_initFilterBar();
-    }
-  }
-  // Toggle Guide Modal (Kiri Atas Header)
-  function toggleGuideModal() {
-    const modal = document.getElementById("guide-modal");
-    if (modal) modal.classList.toggle("active");
   }
 
-  function closeGuideModalOutside(e) {
-    const modal = document.getElementById("guide-modal");
-    if (modal && e.target === modal) modal.classList.remove("active");
+  // Connect video-mode3 to camera stream
+  if (mode === "mode3" && mediaStream) {
+    const v3 = document.getElementById("video-mode3");
+    if (v3 && !v3.srcObject) v3.srcObject = mediaStream;
   }
 
-  // Dark / Light Theme Toggle
-  function toggleTheme() {
-    document.body.classList.toggle("light-mode");
-    const isLight = document.body.classList.contains("light-mode");
+  // Connect video-mode4 to camera stream
+  if (mode === "mode4" && mediaStream) {
+    const v4 = document.getElementById("video-mode4");
+    if (v4 && !v4.srcObject) v4.srcObject = mediaStream;
+    rl_initFilterBar();
+  }
+
+  // Connect video-mode5 to camera stream
+  if (mode === "mode5" && mediaStream) {
+    const v5 = document.getElementById("video-mode5");
+    if (v5 && !v5.srcObject) v5.srcObject = mediaStream;
+  }
+}
+// Toggle Guide Modal (Kiri Atas Header)
+function toggleGuideModal() {
+  const modal = document.getElementById("guide-modal");
+  if (modal) modal.classList.toggle("active");
+}
+
+function closeGuideModalOutside(e) {
+  const modal = document.getElementById("guide-modal");
+  if (modal && e.target === modal) modal.classList.remove("active");
+}
+
+// Dark / Light Theme Toggle
+function toggleTheme() {
+  document.body.classList.toggle("light-mode");
+  const isLight = document.body.classList.contains("light-mode");
+  const btn = document.getElementById("theme-toggle-btn");
+  if (btn) btn.textContent = isLight ? "Ã¢Ëœâ‚¬Ã¯Â¸Â Light" : "Ã°Å¸Å’â„¢ Dark";
+  localStorage.setItem("appTheme", isLight ? "light" : "dark");
+}
+
+function loadSavedTheme() {
+  const saved = localStorage.getItem("appTheme");
+  if (saved === "light") {
+    document.body.classList.add("light-mode");
     const btn = document.getElementById("theme-toggle-btn");
-    if (btn) btn.textContent = isLight ? "☀️ Light" : "🌙 Dark";
-    localStorage.setItem("appTheme", isLight ? "light" : "dark");
+    if (btn) btn.textContent = "Ã¢Ëœâ‚¬Ã¯Â¸Â Light";
+  }
+}
+
+window.switchMode = switchMode;
+window.updateNameFromInput = updateNameFromInput;
+window.toggleGuideModal = toggleGuideModal;
+window.closeGuideModalOutside = closeGuideModalOutside;
+window.toggleTheme = toggleTheme;
+window.toggleMode2Audio = toggleMode2Audio;
+window.handleMode2AudioUpload = handleMode2AudioUpload;
+window.updateMode2AudioVolume = updateMode2AudioVolume;
+window.toggleAutoSyncAudio = toggleAutoSyncAudio;
+
+// Controls Setup
+document.addEventListener("DOMContentLoaded", async () => {
+  // Load saved theme preference
+  loadSavedTheme();
+
+  // Populate saved names into inputs
+  populateNameInputs();
+
+  await initCamera();
+  await loadModels();
+
+  isDetecting = true;
+  processFrame();
+
+  // Mode Tabs Event Listeners
+  document.getElementById("tab-mode1").addEventListener("click", () => switchMode("mode1"));
+  document.getElementById("tab-mode2").addEventListener("click", () => switchMode("mode2"));
+  document.getElementById("tab-mode3").addEventListener("click", () => switchMode("mode3"));
+  document.getElementById("tab-mode4").addEventListener("click", () => switchMode("mode4"));
+  const tabMode5 = document.getElementById("tab-mode5");
+  if (tabMode5) tabMode5.addEventListener("click", () => switchMode("mode5"));
+
+  // Connect video-mode4 at start
+  if (mediaStream) {
+    const v4 = document.getElementById("video-mode4");
+    if (v4) v4.srcObject = mediaStream;
   }
 
-  function loadSavedTheme() {
-    const saved = localStorage.getItem("appTheme");
-    if (saved === "light") {
-      document.body.classList.add("light-mode");
-      const btn = document.getElementById("theme-toggle-btn");
-      if (btn) btn.textContent = "☀️ Light";
+  // Toggle Photo Blur Button (Mode 2)
+  const btnToggleBlur = document.getElementById("btn-toggle-blur");
+  if (btnToggleBlur) {
+    btnToggleBlur.addEventListener("click", () => {
+      isPhotoBlurActive = !isPhotoBlurActive;
+      btnToggleBlur.textContent = isPhotoBlurActive ? "Ã°Å¸â€œÂ¸ Blur Active" : "Ã°Å¸â€œÂ¸ Toggle Photo Blur";
+    });
+  }
+});
+
+
+// =====================================================
+// =====================================================
+// MODE 5 — API TANGAN (Fire Hand Particle Engine)
+// Fixed & fast JS port of Python class Api
+// Keypoints from TF HandPose = pixel coords in video space
+// =====================================================
+
+// --- Config (1:1 Python constants) ---
+const F5_SPAWN = 100;
+const F5_MAKS = 12000;
+const F5_RADIUS = 0.22;
+const F5_TINGGI_LAHIR = 0.07;
+const F5_TAJAM = 1.4;
+const F5_HALO_R = 8.0;
+const F5_HALO_K = 0.80;
+const F5_INTI_BLUR = 0.7;
+const F5_DERAU = 0.22;
+const F5_ANGKAT = 3.6;
+const F5_LEHER = 0.030;
+const F5_PANAS_ANGKAT = 0.6;
+const F5_SERET = 0.30;
+const F5_GLOW = 0.55;
+const F5_ASAP = 0.50;
+const F5_SKALA = 2;       // half-res internal buffer
+const F5_AMBANG_JARI = 1.12;
+const F5_AMBANG_JEMPOL = 1.15;
+
+// --- LUT gradients (fire: warm orange/red/white) ---
+let f5LutLuar = null, f5LutInti = null, f5LutAsap = null;
+function _f5Lerpstops(stops, t) {
+  for (let j = 0; j < stops.length - 1; j++) {
+    const [a, ca] = stops[j], [b, cb] = stops[j + 1];
+    if (t >= a && t <= b) {
+      const u = (t - a) / Math.max(1, b - a);
+      return [ca[0] + (cb[0] - ca[0]) * u, ca[1] + (cb[1] - ca[1]) * u, ca[2] + (cb[2] - ca[2]) * u];
     }
   }
+  return stops[stops.length - 1][1];
+}
+function f5InitLUT() {
+  if (f5LutLuar) return;
+  // Outer: black -> dark red -> orange -> amber
+  const SL = [[0, [0, 0, 0]], [25, [50, 5, 2]], [80, [180, 30, 8]], [150, [235, 90, 18]], [220, [255, 155, 40]], [255, [255, 220, 100]]];
+  // Core: black -> bright orange -> yellow -> white
+  const SI = [[0, [0, 0, 0]], [50, [140, 70, 10]], [130, [255, 200, 70]], [200, [255, 248, 180]], [255, [255, 255, 255]]];
+  // Smoke: warm dark gray
+  const SA = [[0, [0, 0, 0]], [120, [65, 50, 35]], [255, [100, 82, 58]]];
+  f5LutLuar = []; f5LutInti = []; f5LutAsap = [];
+  for (let i = 0; i < 256; i++) {
+    f5LutLuar.push(_f5Lerpstops(SL, i));
+    f5LutInti.push(_f5Lerpstops(SI, i));
+    f5LutAsap.push(_f5Lerpstops(SA, i));
+  }
+}
 
-  window.switchMode = switchMode;
-  window.updateNameFromInput = updateNameFromInput;
-  window.toggleGuideModal = toggleGuideModal;
-  window.closeGuideModalOutside = closeGuideModalOutside;
-  window.toggleTheme = toggleTheme;
-  window.toggleMode2Audio = toggleMode2Audio;
-  window.handleMode2AudioUpload = handleMode2AudioUpload;
-  window.updateMode2AudioVolume = updateMode2AudioVolume;
-  window.toggleAutoSyncAudio = toggleAutoSyncAudio;
+// --- Simple animated noise (replaces Python DERAU_X/Y) ---
+// Use fast sin-based pseudo turbulence, no precomputation needed
+function f5NoiseXY(x, y, t) {
+  const nx = Math.sin(x * 0.045 + y * 0.023 + t * 1.7) * Math.cos(y * 0.038 - t * 0.9);
+  const ny = Math.cos(x * 0.031 - y * 0.041 + t * 2.1) * Math.sin(x * 0.027 + t * 1.3);
+  return [nx, ny];
+}
 
-  // Controls Setup
-  document.addEventListener("DOMContentLoaded", async () => {
-    // Load saved theme preference
-    loadSavedTheme();
+// --- Particle pool (TypedArrays = fast) ---
+let f5x, f5y, f5vx, f5vy, f5ax, f5hidup, f5umur, f5panas;
+let f5PoolInited = false;
+function f5InitPool() {
+  if (f5PoolInited) return;
+  f5x = new Float32Array(F5_MAKS); f5y = new Float32Array(F5_MAKS);
+  f5vx = new Float32Array(F5_MAKS); f5vy = new Float32Array(F5_MAKS);
+  f5ax = new Float32Array(F5_MAKS); f5hidup = new Float32Array(F5_MAKS);
+  f5umur = new Float32Array(F5_MAKS); f5panas = new Float32Array(F5_MAKS);
+  f5PoolInited = true;
+}
 
-    // Populate saved names into inputs
-    populateNameInputs();
+// --- Spawn (matches Python Api.lahir) ---
+function f5Lahir(cx, cy, jml, radius, hx, hy) {
+  let spawned = 0;
+  for (let i = 0; i < F5_MAKS && spawned < jml; i++) {
+    if (f5hidup[i] > 0) continue;
+    const a = Math.random() * Math.PI * 2;
+    const r = radius * Math.sqrt(Math.random());
+    f5x[i] = cx + Math.cos(a) * r;
+    f5y[i] = cy + Math.sin(a) * r * 0.30;  // ellipse like Python
+    f5ax[i] = cx;
+    // Group-based velocities (simplified from Python nk groups)
+    const gx = (Math.random() - 0.5) * 0.84 + hx * F5_SERET;
+    const gy = -Math.random() * 0.9 + hy * F5_SERET;
+    const gp = 0.55 + Math.random() * 0.45;
+    f5vx[i] = (Math.random() - 0.5) * 0.10 + gx;
+    f5vy[i] = -(0.5 + Math.random() * 0.9) + gy;
+    f5panas[i] = Math.min(1, gp * (0.8 + Math.random() * 0.35));
+    f5umur[i] = 0.55 + Math.random() * 0.60;
+    f5hidup[i] = f5umur[i];
+    spawned++;
+  }
+}
 
-    await initCamera();
-    await loadModels();
+// --- Advance physics (matches Python Api.maju) ---
+function f5Maju(dt, t) {
+  for (let i = 0; i < F5_MAKS; i++) {
+    if (f5hidup[i] <= 0) continue;
+    const frac = f5hidup[i] / Math.max(1e-6, f5umur[i]);
+    // Lift (API_ANGKAT * (1 + API_PANAS_ANGKAT * panas))
+    f5vy[i] -= F5_ANGKAT * (1.0 + F5_PANAS_ANGKAT * f5panas[i]) * dt * 60 * 0.016;
+    // Noise turbulence (sin-based, matches spirit of Python DERAU)
+    const [nx, ny] = f5NoiseXY(f5x[i], f5y[i], t);
+    f5vx[i] += nx * F5_DERAU;
+    f5vy[i] += ny * F5_DERAU * 0.55;
+    // Neck attraction to spawn anchor (API_LEHER)
+    f5vx[i] += (f5ax[i] - f5x[i]) * F5_LEHER * frac;
+    f5vx[i] *= 0.955;
+    f5x[i] += f5vx[i];
+    f5y[i] += f5vy[i];
+    f5hidup[i] -= dt;
+  }
+}
 
-    isDetecting = true;
-    processFrame();
+// --- Offscreen buffer (persistent, no per-frame allocation) ---
+let f5Off = null, f5OffCtx = null, f5OffW = 0, f5OffH = 0;
+let f5Glow = null, f5GlowCtx = null;
+function f5EnsureOff(lw, lh) {
+  if (f5Off && f5OffW === lw && f5OffH === lh) return;
+  f5Off = document.createElement("canvas");
+  f5Off.width = lw; f5Off.height = lh;
+  f5OffCtx = f5Off.getContext("2d", { willReadFrequently: true });
+  f5Glow = document.createElement("canvas");
+  f5Glow.width = lw; f5Glow.height = lh;
+  f5GlowCtx = f5Glow.getContext("2d");
+  f5OffW = lw; f5OffH = lh;
+}
 
-    // Mode Tabs Event Listeners
-    document.getElementById("tab-mode1").addEventListener("click", () => switchMode("mode1"));
-    document.getElementById("tab-mode2").addEventListener("click", () => switchMode("mode2"));
-    document.getElementById("tab-mode3").addEventListener("click", () => switchMode("mode3"));
-    document.getElementById("tab-mode4").addEventListener("click", () => switchMode("mode4"));
+// --- 3-buffer render (matches Python Api.buffer3 + Api.render) ---
+function f5Render(ctx, cw, ch) {
+  const lw = Math.ceil(cw / F5_SKALA);
+  const lh = Math.ceil(ch / F5_SKALA);
+  f5EnsureOff(lw, lh);
 
-    // Connect video-mode4 at start
-    if (mediaStream) {
-      const v4 = document.getElementById("video-mode4");
-      if (v4) v4.srcObject = mediaStream;
-    }
+  // Build 3 float accumulation buffers
+  const b1 = new Float32Array(lw * lh);  // outer (panas*frac*1.2)
+  const b2 = new Float32Array(lw * lh);  // core  (frac>=0.55, panas*frac*1.5)
+  const b3 = new Float32Array(lw * lh);  // smoke (frac<=0.22)
+  let hasAny = false;
 
-    // Toggle Photo Blur Button (Mode 2)
-    const btnToggleBlur = document.getElementById("btn-toggle-blur");
-    if (btnToggleBlur) {
-      btnToggleBlur.addEventListener("click", () => {
-        isPhotoBlurActive = !isPhotoBlurActive;
-        btnToggleBlur.textContent = isPhotoBlurActive ? "📸 Blur Active" : "📸 Toggle Photo Blur";
-      });
-    }
+  for (let i = 0; i < F5_MAKS; i++) {
+    if (f5hidup[i] <= 0) continue;
+    const frac = f5hidup[i] / Math.max(1e-6, f5umur[i]);
+    const xi = f5x[i] | 0, yi = f5y[i] | 0;
+    if (xi < 0 || xi >= lw || yi < 0 || yi >= lh) continue;
+    hasAny = true;
+    const idx = yi * lw + xi;
+    b1[idx] += f5panas[i] * frac * 1.2;
+    if (frac >= 0.55) b2[idx] += f5panas[i] * frac * 1.5;
+    if (frac <= 0.22) b3[idx] += f5panas[i] * frac;
+  }
+  if (!hasAny) return;
+
+  // Convert to pixels via LUT (matches Python LUT_LUAR/LUT_INTI/LUT_ASAP)
+  const img = f5OffCtx.createImageData(lw, lh);
+  const pix = img.data;
+
+  for (let i = 0; i < lw * lh; i++) {
+    // b1 -> LUT_LUAR (outer glow, max of tajam+halo combined)
+    const v1 = Math.min(255, (b1[i] * 2.8 * 255) | 0);
+    const [r1, g1, b1c] = f5LutLuar[v1];
+    const p = i << 2;
+    pix[p] = r1 | 0; pix[p + 1] = g1 | 0; pix[p + 2] = b1c | 0; pix[p + 3] = 255;
+  }
+  for (let i = 0; i < lw * lh; i++) {
+    if (b2[i] <= 0) continue;
+    const v2 = Math.min(255, (b2[i] * 3.5 * 255) | 0);
+    const [r2, g2, b2c] = f5LutInti[v2];
+    const p = i << 2;
+    pix[p] = Math.min(255, (pix[p] + (r2 | 0)));
+    pix[p + 1] = Math.min(255, (pix[p + 1] + (g2 | 0)));
+    pix[p + 2] = Math.min(255, (pix[p + 2] + (b2c | 0)));
+  }
+  for (let i = 0; i < lw * lh; i++) {
+    if (b3[i] <= 0.005) continue;
+    const v3 = Math.min(255, (b3[i] * 5.0 * F5_ASAP * 255) | 0);
+    const [r3, g3, b3c] = f5LutAsap[v3];
+    const p = i << 2;
+    pix[p] = Math.min(255, (pix[p] + (r3 | 0)));
+    pix[p + 1] = Math.min(255, (pix[p + 1] + (g3 | 0)));
+    pix[p + 2] = Math.min(255, (pix[p + 2] + (b3c | 0)));
+  }
+  f5OffCtx.putImageData(img, 0, 0);
+
+  // Glow pass: blur offscreen and composite with "lighter" (additive)
+  f5GlowCtx.clearRect(0, 0, lw, lh);
+  f5GlowCtx.filter = `blur(${Math.max(1, F5_HALO_R * 0.35) | 0}px)`;
+  f5GlowCtx.drawImage(f5Off, 0, 0);
+  f5GlowCtx.filter = "none";
+
+  // 1. Sharp base (Api.render: api = luar+inti)
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+  ctx.globalAlpha = 1.0;
+  ctx.drawImage(f5Off, 0, 0, lw, lh, 0, 0, cw, ch);
+
+  // 2. Glow overlay (Api.render: gab = glow*API_GLOW + api)
+  ctx.globalAlpha = F5_GLOW;
+  ctx.drawImage(f5Glow, 0, 0, lw, lh, 0, 0, cw, ch);
+  ctx.restore();
+}
+
+// --- Finger detection (matches Python jari_terbuka) ---
+// --- Helper mapping: Video pixels -> Canvas pixels (Mirrored) ---
+function f5MapPoint(px, py, vw, vh, cw, ch) {
+  const vr = vw / vh, cr = cw / ch;
+  let sw, sh, sx, sy;
+  if (vr > cr) {
+    sh = ch; sw = sh * vr; sx = (cw - sw) / 2; sy = 0;
+  } else {
+    sw = cw; sh = sw / vr; sx = 0; sy = (ch - sh) / 2;
+  }
+  return {
+    x: cw - (sx + (px / vw) * sw),
+    y: sy + (py / vh) * sh
+  };
+}
+
+// --- Quad sorting & tracking for 2-hand "L" Bingkai Frame ---
+function f5SortQuad(pts) {
+  if (!pts || pts.length < 4) return null;
+  const c = {
+    x: (pts[0].x + pts[1].x + pts[2].x + pts[3].x) / 4,
+    y: (pts[0].y + pts[1].y + pts[2].y + pts[3].y) / 4
+  };
+  const sorted = [...pts].sort((a, b) => Math.atan2(a.y - c.y, a.x - c.x) - Math.atan2(b.y - c.y, b.x - c.x));
+  let minIdx = 0, minSum = Infinity;
+  sorted.forEach((p, i) => {
+    const sum = p.x + p.y;
+    if (sum < minSum) { minSum = sum; minIdx = i; }
   });
+  const res = [];
+  for (let i = 0; i < 4; i++) res.push(sorted[(minIdx + i) % 4]);
+  return res;
+}
 
+function f5MatchQuad(qNew, qOld) {
+  if (!qOld || !qNew) return qNew;
+  let bestR = 0, minScore = Infinity;
+  for (let r = 0; r < 4; r++) {
+    let score = 0;
+    for (let i = 0; i < 4; i++) {
+      const p1 = qNew[(i + r) % 4];
+      const p2 = qOld[i];
+      score += (p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2;
+    }
+    if (score < minScore) { minScore = score; bestR = r; }
+  }
+  const res = [];
+  for (let i = 0; i < 4; i++) res.push(qNew[(i + bestR) % 4]);
+  return res;
+}
+
+function f5DrawQuadBrackets(ctx, q, color) {
+  if (!q || q.length < 4) return;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 4;
+  ctx.lineCap = "round";
+  for (let i = 0; i < 4; i++) {
+    const p = q[i];
+    for (const j of [(i + 3) % 4, (i + 1) % 4]) {
+      const vx = q[j].x - p.x;
+      const vy = q[j].y - p.y;
+      const L = Math.hypot(vx, vy);
+      if (L < 2) continue;
+      const len = Math.min(L * 0.28, 55);
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.lineTo(p.x + (vx / L) * len, p.y + (vy / L) * len);
+      ctx.stroke();
+    }
+  }
+}
+
+// --- Finger detection (robust & matches Python jari_terbuka) ---
+function f5JariTerbuka(pts) {
+  const d = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+  const w = pts[0], ref = pts[17];
+  const thumb = d(pts[4], ref) > d(pts[2], ref) * 1.02;
+  const f = [thumb];
+  for (const [tip, pip] of [[8, 6], [12, 10], [16, 14], [20, 18]]) {
+    f.push(d(pts[tip], w) > d(pts[pip], w) * 1.02);
+  }
+  return f;  // [thumb, index, middle, ring, pinky]
+}
+function f5IsL(f) { return f[0] && f[1] && !f[2] && !f[3] && !f[4]; }
+function f5IsTunjuk(f) { return f[1] && !f[2] && !f[3] && !f[4]; }
+function f5Count(f) { return f.reduce((s, v) => s + (v ? 1 : 0), 0); }
+
+// --- State ---
+let f5ShowCamera = true, f5Intensity = 1.0, f5SizeScale = 0.8;
+let f5PrevPts = [], f5Inited = false, f5T = 0;
+let f5KilatSampai = 0, f5ToastUntil = 0;
+let f5TrailPoints = [], f5IsDrawMode = true;
+
+// 3-second hold timers & unlock flags
+let f5HoldTunjukStart = null;
+let f5IsDrawUnlocked = false;
+let f5HoldScreenshotStart = null;
+
+// --- Main render (called from processFrame) ---
+function renderMode5(faces, hands) {
+  if (!f5Inited) { f5InitLUT(); f5InitPool(); f5Inited = true; f5T = performance.now() / 1000; }
+
+  const canvas = document.getElementById("canvas-fire"); if (!canvas) return;
+  const video = document.getElementById("video-mode5");
+  const ctx = canvas.getContext("2d");
+
+  // Ensure video stream is playing
+  if (video && mediaStream && !video.srcObject) {
+    video.srcObject = mediaStream;
+    video.play().catch(() => { });
+  }
+
+  // Size canvas to parent container
+  const parent = canvas.parentElement;
+  const cw = (parent ? parent.clientWidth : window.innerWidth) | 0;
+  const ch = (parent ? parent.clientHeight : window.innerHeight) | 0;
+  if (canvas.width !== cw || canvas.height !== ch) { canvas.width = cw; canvas.height = ch; }
+
+  // Delta time
+  const now = performance.now() / 1000;
+  const dt = Math.min(0.08, now - f5T); f5T = now;
+
+  // === Draw camera background (mirrored) ===
+  if (f5ShowCamera && video && video.readyState >= 2 && video.videoWidth > 0) {
+    const vw = video.videoWidth, vh = video.videoHeight;
+    const vr = vw / vh, cr = cw / ch;
+    let sw, sh, sx, sy;
+    if (vr > cr) { sh = ch; sw = sh * vr; sx = (cw - sw) / 2; sy = 0; }
+    else { sw = cw; sh = sw / vr; sx = 0; sy = (ch - sh) / 2; }
+    ctx.save();
+    ctx.translate(cw, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, -sx, sy, sw, sh);
+    ctx.restore();
+    ctx.fillStyle = "rgba(0,0,0,0.52)";
+    ctx.fillRect(0, 0, cw, ch);
+  } else {
+    ctx.fillStyle = "#0a0004";
+    ctx.fillRect(0, 0, cw, ch);
+  }
+
+  let totalEmitters = 0, gestureLabel = "-";
+  let openHandsCount = 0;
+  let isAny1FingerTunjuk = false;
+  let tunjukTipPt = null;
+
+  if (hands && hands.length > 0) {
+    const vw = (video && video.videoWidth) ? video.videoWidth : cw;
+    const vh = (video && video.videoHeight) ? video.videoHeight : ch;
+
+    hands.forEach((hand, hIdx) => {
+      const kp = hand.keypoints || hand.keypoints3D;
+      if (!kp || kp.length < 21) return;
+
+      // Accurately map keypoints to canvas pixels (mirrored)
+      const pts = kp.map(p => f5MapPoint(p.x, p.y, vw, vh, cw, ch));
+
+      // Detect fingers (count >= 3 counts as open hand)
+      const f = f5JariTerbuka(pts);
+      const fc = f5Count(f);
+
+      if (fc >= 3) openHandsCount++;
+
+      // Hand size
+      const handSize = Math.hypot(pts[9].x - pts[0].x, pts[9].y - pts[0].y);
+      const skala = Math.max(0.4, Math.min(2.4, handSize / 90.0)) * f5SizeScale * f5Intensity;
+
+      // Active fingertip indices
+      let tips = [];
+      if (fc === 0) {
+        gestureLabel = "👊 Tinju (Api Padam)";
+      } else if (f5IsTunjuk(f)) {
+        isAny1FingerTunjuk = true;
+        tunjukTipPt = pts[8];
+        tips = [8];
+      } else if (fc === 1) {
+        gestureLabel = "☝️ 1 Jari";
+        tips = f[0] ? [4] : f[1] ? [8] : f[2] ? [12] : f[3] ? [16] : [20];
+      } else if (fc === 2) {
+        gestureLabel = "✌️ 2 Jari";
+        tips = [8, 12];
+      } else if (fc === 3) {
+        gestureLabel = "🤟 3 Jari";
+        tips = [8, 12, 16];
+      } else if (fc === 4) {
+        gestureLabel = "🖖 4 Jari";
+        tips = [8, 12, 16, 20];
+      } else {
+        gestureLabel = "🖐️ 5 Jari — API LEDAK!";
+        tips = [4, 8, 12, 16, 20];
+      }
+
+      // Draw hand skeleton lines (like Python cv2.line)
+      const connections = [
+        [0, 1], [1, 2], [2, 3], [3, 4],
+        [0, 5], [5, 6], [6, 7], [7, 8],
+        [5, 9], [9, 10], [10, 11], [11, 12],
+        [9, 13], [13, 14], [14, 15], [15, 16],
+        [13, 17], [17, 18], [18, 19], [19, 20],
+        [0, 17]
+      ];
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = tips.length > 0 ? "rgba(255, 120, 0, 0.65)" : "rgba(0, 229, 255, 0.45)";
+      connections.forEach(([a, b]) => {
+        ctx.beginPath();
+        ctx.moveTo(pts[a].x, pts[a].y);
+        ctx.lineTo(pts[b].x, pts[b].y);
+        ctx.stroke();
+      });
+
+      // Draw joint dots
+      pts.forEach((pt, jIdx) => {
+        if ([4, 8, 12, 16, 20].includes(jIdx)) return;
+        ctx.fillStyle = "rgba(0, 229, 255, 0.7)";
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 3, 0, 2 * Math.PI);
+        ctx.fill();
+      });
+
+      // Draw fingertip indicators
+      [4, 8, 12, 16, 20].forEach(tidx => {
+        const isEmitter = tips.includes(tidx);
+        const pt = pts[tidx];
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, isEmitter ? 7 : 4, 0, 2 * Math.PI);
+        ctx.fillStyle = isEmitter ? "#ffea00" : "rgba(0, 229, 255, 0.8)";
+        ctx.fill();
+        ctx.lineWidth = isEmitter ? 2.5 : 1;
+        ctx.strokeStyle = isEmitter ? "#ff3300" : "#00e5ff";
+        ctx.stroke();
+      });
+
+      const prev = f5PrevPts[hIdx] || pts;
+
+      tips.forEach(tidx => {
+        const tip = pts[tidx]; if (!tip) return;
+        totalEmitters++;
+
+        const pt = prev[tidx] || tip;
+        const dx = (tip.x - pt.x) / F5_SKALA;
+        const dy = (tip.y - pt.y) / F5_SKALA;
+
+        const spawnY = tip.y - handSize * F5_TINGGI_LAHIR;
+        const cx = tip.x / F5_SKALA;
+        const cy = spawnY / F5_SKALA;
+        const radius = Math.max(1.5, handSize * F5_RADIUS / F5_SKALA) * skala;
+
+        f5Lahir(cx, cy, Math.round(F5_SPAWN * skala), radius, dx, dy);
+      });
+
+      f5PrevPts[hIdx] = pts;
+    });
+  } else {
+    gestureLabel = "-";
+    f5PrevPts = [];
+  }
+
+  // === ✏️ 1 JARI (TELUNJUK): TAHAN 3 DETIK BARU NULIS DESIGN AKTIFF (TANPA BUG LOOP) ===
+  if (isAny1FingerTunjuk && tunjukTipPt) {
+    if (f5IsDrawUnlocked) {
+      gestureLabel = "✏️ 1 Jari — Nulis Design / Melukis (Aktif)!";
+      if (f5IsDrawMode) {
+        const lastP = f5TrailPoints[f5TrailPoints.length - 1];
+        if (!lastP || Math.hypot(tunjukTipPt.x - lastP.x, tunjukTipPt.y - lastP.y) > 3) {
+          f5TrailPoints.push({ x: tunjukTipPt.x, y: tunjukTipPt.y, t: now });
+          if (f5TrailPoints.length > 500) f5TrailPoints.shift();
+        }
+      }
+    } else {
+      if (f5HoldTunjukStart === null) f5HoldTunjukStart = now;
+      const tahanTunjukSec = now - f5HoldTunjukStart;
+      const sisaDraw = 3.0 - tahanTunjukSec;
+
+      if (sisaDraw > 0) {
+        gestureLabel = `☝️ 1 Jari (Nulis Design dalam ${Math.ceil(sisaDraw)}s...)`;
+        // Draw progress ring around index fingertip
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(tunjukTipPt.x, tunjukTipPt.y, 24, -Math.PI / 2, -Math.PI / 2 + (1.0 - sisaDraw / 3.0) * 2 * Math.PI);
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = "#00e5ff";
+        ctx.stroke();
+        ctx.restore();
+      } else {
+        f5IsDrawUnlocked = true;
+        gestureLabel = "✏️ Mode Nulis Design Aktif!";
+      }
+    }
+  } else {
+    f5HoldTunjukStart = null;
+    f5IsDrawUnlocked = false;
+  }
+
+  // === 🖐️🖐️ 2 TANGAN TERBUKA (4/5 JARI): SCREENSHOT 3 DETIK WITH ANIMATION & 2S TOAST ===
+  const is2HandsBothOpen = (hands && hands.length >= 2 && openHandsCount >= 2);
+
+  if (is2HandsBothOpen) {
+    gestureLabel = "🖐️🖐️ 2 Tangan Terbuka (Screenshot 3s...)";
+    if (f5HoldScreenshotStart === null) f5HoldScreenshotStart = now;
+    const sisaSnap = 3.0 - (now - f5HoldScreenshotStart);
+
+    // Render screen frame border & retro camera viewfinder grid
+    ctx.save();
+    ctx.strokeStyle = sisaSnap > 1.0 ? "#00e5ff" : "#ff0078";
+    ctx.lineWidth = 6;
+    ctx.setLineDash([18, 12]);
+    ctx.strokeRect(18, 18, cw - 36, ch - 36);
+    ctx.setLineDash([]);
+
+    // Big Countdown Text 3, 2, 1
+    if (sisaSnap > 0) {
+      const countStr = Math.ceil(sisaSnap).toString();
+      const pulseScale = 1.0 + 0.25 * Math.abs(Math.sin(sisaSnap * Math.PI));
+      const fontSize = Math.round(85 * pulseScale);
+
+      ctx.font = `bold ${fontSize}px sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = "rgba(0,0,0,0.6)";
+      ctx.fillText(countStr, cw / 2 + 4, ch / 2 + 4);
+      ctx.fillStyle = sisaSnap > 1.0 ? "#00e5ff" : "#ff0078";
+      ctx.shadowColor = "#ffea00";
+      ctx.shadowBlur = 25;
+      ctx.fillText(countStr, cw / 2, ch / 2);
+      ctx.shadowBlur = 0;
+
+      // Label below countdown
+      ctx.font = "bold 18px sans-serif";
+      ctx.fillStyle = "#ffffff";
+      ctx.fillText("📸 SCREENSHOT AUTOMATIS 2 TANGAN TERBUKA", cw / 2, ch / 2 + 60);
+    }
+
+    // Trigger Auto Screenshot when Countdown hits 0
+    if (sisaSnap <= 0) {
+      takeFireSnapshot("2_tangan_terbuka_snap");
+      f5ToastUntil = now + 2.0; // Show toast notification for 2.0s
+      f5HoldScreenshotStart = now + 1.5; // Cooldown offset
+    }
+    ctx.restore();
+  } else {
+    f5HoldScreenshotStart = null;
+  }
+
+  // Advance physics & render fire
+  f5Maju(dt, now);
+  f5Render(ctx, cw, ch);
+
+  // === ✏️ DRAW 1-FINGER TRAIL ("NULIS DESIGN") ===
+  if (f5TrailPoints.length > 1) {
+    ctx.save();
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+
+    // Outer glow pass
+    ctx.strokeStyle = "#ff5500";
+    ctx.shadowColor = "#ffaa00";
+    ctx.shadowBlur = 14;
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.moveTo(f5TrailPoints[0].x, f5TrailPoints[0].y);
+    for (let i = 1; i < f5TrailPoints.length; i++) {
+      ctx.lineTo(f5TrailPoints[i].x, f5TrailPoints[i].y);
+    }
+    ctx.stroke();
+
+    // Inner bright core pass
+    ctx.strokeStyle = "#ffffff";
+    ctx.shadowColor = "#00e5ff";
+    ctx.shadowBlur = 6;
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // White Flash Effect on Screenshot
+  if (now < f5KilatSampai) {
+    const alpha = (f5KilatSampai - now) / 0.35;
+    ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1.0, alpha)})`;
+    ctx.fillRect(0, 0, cw, ch);
+  }
+
+  // 📸 2-Second Screenshot Toast Overlay (Retro Lens Style)
+  if (now < f5ToastUntil) {
+    ctx.save();
+    const bw = 360, bh = 44;
+    const bx = (cw - bw) / 2, by = 35;
+    ctx.fillStyle = "rgba(10, 0, 15, 0.88)";
+    ctx.strokeStyle = "#00e5ff";
+    ctx.lineWidth = 2;
+    ctx.shadowColor = "#00e5ff";
+    ctx.shadowBlur = 12;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(bx, by, bw, bh, 8);
+    else ctx.rect(bx, by, bw, bh);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.font = "bold 15px sans-serif";
+    ctx.fillStyle = "#ffffff";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("📸 SCREENSHOT TERSIMPAN AUTOMATIS!", cw / 2, by + 22);
+    ctx.restore();
+  }
+
+  // Count active particles
+  let alive = 0;
+  for (let i = 0; i < F5_MAKS; i++) if (f5hidup[i] > 0) alive++;
+
+  // Update sidebar stats
+  const e1 = document.getElementById("res-mode5-gesture");
+  const e2 = document.getElementById("res-mode5-hands");
+  const e3 = document.getElementById("res-mode5-particles");
+  const e4 = document.getElementById("res-mode5-emitters");
+  if (e1) e1.textContent = gestureLabel;
+  if (e2) e2.textContent = hands ? hands.length : 0;
+  if (e3) e3.textContent = alive;
+  if (e4) e4.textContent = totalEmitters;
+}
+
+// --- Mode 5 Controls & Snapshot
+function setFireIntensity(val) {
+  f5Intensity = parseFloat(val) / 100;
+  const e = document.getElementById("fire-intensity-val");
+  if (e) e.textContent = Math.round(f5Intensity * 100) + "%";
+}
+function setFireSize(val) {
+  f5SizeScale = parseFloat(val) / 100;
+  const e = document.getElementById("fire-size-val");
+  if (e) e.textContent = Math.round(f5SizeScale * 100) + "%";
+}
+function setFireShowCamera(val) { f5ShowCamera = val; }
+function setFireDrawMode(val) { f5IsDrawMode = val; }
+function clearFireTrail() { f5TrailPoints = []; }
+
+function takeFireSnapshot(tag = "fire_art") {
+  const canvas = document.getElementById("canvas-fire");
+  if (!canvas) return;
+  f5KilatSampai = performance.now() / 1000 + 0.35;
+  try {
+    const link = document.createElement("a");
+    link.download = `${tag}_${Date.now()}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  } catch (err) { }
+}
+
+// untuk gunakan manual seperti [C] apus design, [S] ambil screenshot
+window.addEventListener("keydown", (e) => {
+  if (currentMode !== "mode5") return;
+  const k = e.key.toLowerCase();
+  if (k === "c") clearFireTrail();
+  if (k === "s") takeFireSnapshot("manual_snap");
+});
+
+window.setFireIntensity = setFireIntensity;
+window.setFireSize = setFireSize;
+window.setFireShowCamera = setFireShowCamera;
+window.setFireDrawMode = setFireDrawMode;
+window.clearFireTrail = clearFireTrail;
+window.takeFireSnapshot = takeFireSnapshot;

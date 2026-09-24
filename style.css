@@ -408,6 +408,18 @@ body, html {
   margin-top: 4px;
 }
 
+/* Mode 5 info box */
+.feature-info-box {
+  font-size: 0.75rem;
+  color: var(--text-muted, #bbb);
+  line-height: 1.55;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.feature-info-box p { margin: 0; }
+.feature-info-box strong { color: #ffaa55; }
+
 .name-edit-header {
   display: flex;
   justify-content: space-between;

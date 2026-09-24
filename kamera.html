@@ -37,19 +37,21 @@
       </div>
     </div>
 
-    <!-- Mode Tabs: Mode 1/4, Mode 2/4, Mode 3/4, Mode 4/4 -->
     <nav class="mode-tabs">
       <button id="tab-mode1" class="tab-btn active" onclick="switchMode('mode1')">
-        <span>👤</span> Mode 1/4: Panggil Nama
+        <span>👤</span> Mode 1: Panggil Nama
       </button>
       <button id="tab-mode2" class="tab-btn" onclick="switchMode('mode2')">
-        <span>📸</span> Mode 2/4: Photo Blur
+        <span>📸</span> Mode 2: Photo Blur
       </button>
       <button id="tab-mode3" class="tab-btn" onclick="switchMode('mode3')">
-        <span>🌌</span> Mode 3/4: 3D Animasi
+        <span>🌌</span> Mode 3: 3D Animasi
       </button>
       <button id="tab-mode4" class="tab-btn" onclick="switchMode('mode4')">
-        <span>🎨</span> Mode 4/4: Hand tracking Filter
+        <span>🎨</span> Mode 4: Hand Filter
+      </button>
+      <button id="tab-mode5" class="tab-btn" onclick="switchMode('mode5')">
+        <span>🔥</span> Mode 5: Api Tangan
       </button>
     </nav>
   </header>
@@ -402,6 +404,80 @@
     </div>
   </main>
 
+  <!-- PAGE 5: Api Tangan (Flame Hand Tracking) -->
+  <main id="page-mode5" class="page-view">
+    <div class="mode1-layout">
+      <div class="video-box-main" style="position:relative;">
+        <video id="video-mode5" autoplay muted playsinline style="position:absolute;width:100%;height:100%;object-fit:cover;opacity:0;pointer-events:none;z-index:0;"></video>
+        <canvas id="canvas-fire" style="position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1;"></canvas>
+      </div>
+
+      <aside class="results-sidebar">
+        <div class="sidebar-header">
+          <h2>🔥 Api Tangan Live</h2>
+        </div>
+        <div class="res-grid">
+          <div class="res-card">
+            <span class="label">Gestur Aktif</span>
+            <span id="res-mode5-gesture" class="val" style="color:#ff6600;">-</span>
+          </div>
+          <div class="res-card">
+            <span class="label">Jumlah Tangan</span>
+            <span id="res-mode5-hands" class="val">0</span>
+          </div>
+          <div class="res-card">
+            <span class="label">Partikel Api</span>
+            <span id="res-mode5-particles" class="val" style="color:#ffaa00;">0</span>
+          </div>
+          <div class="res-card">
+            <span class="label">Titik Api</span>
+            <span id="res-mode5-emitters" class="val" style="color:#ff3300;">0</span>
+          </div>
+        </div>
+
+        <div class="name-edit-panel">
+          <div class="name-edit-header"><span>🔥 Panduan Gestur & Fitur Spesial</span></div>
+          <div class="feature-info-box">
+            <p><strong>☝️ 1 Jari (Telunjuk):</strong> Tahan 1 Jari selama 3 Detik → <strong>✏️ Mode Nulis Design / Melukis Aktif!</strong></p>
+            <p><strong>🖐️🖐️ 2 Tangan Terbuka (4/5 Jari):</strong> Tahan 2 tangan terbuka 3 detik → <strong>📸 SCREENSHOT OTOMATIS (3, 2, 1)!</strong></p>
+            <p><strong>✌️ 2-3 Jari:</strong> Api Ganda / Triple di ujung jari.</p>
+            <p><strong>👊 Tinju:</strong> Api Padam Total.</p>
+          </div>
+        </div>
+
+        <div class="name-edit-panel" style="margin-top:8px;">
+          <div class="name-edit-header"><span>✏️ Mode Nulis Design (1 Jari)</span></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <input type="checkbox" id="chk-fire-draw" checked onchange="setFireDrawMode(this.checked)" style="cursor:pointer;width:14px;height:14px;accent-color:#00e5ff;">
+            <label for="chk-fire-draw" style="cursor:pointer;font-size:0.8rem;color:#00e5ff;font-weight:600;">Aktifkan Nulis Design / Melukis</label>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button onclick="clearFireTrail()" style="flex:1;background:rgba(255,0,85,0.25);border:1px solid #ff0055;color:#fff;border-radius:6px;padding:6px;font-size:0.75rem;cursor:pointer;font-weight:600;">🧹 Hapus Tulisan</button>
+            <button onclick="takeFireSnapshot()" style="flex:1;background:rgba(0,229,255,0.25);border:1px solid #00e5ff;color:#fff;border-radius:6px;padding:6px;font-size:0.75rem;cursor:pointer;font-weight:600;">📸 Foto Manual</button>
+          </div>
+        </div>
+
+        <div class="name-edit-panel" style="margin-top:8px;">
+          <div class="name-edit-header"><span>⚙️ Kontrol Api</span></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <span class="label" style="font-size:0.78rem;color:var(--text-muted);">Intensitas:</span>
+            <input type="range" id="fire-intensity" min="50" max="200" value="100" oninput="setFireIntensity(this.value)" style="flex:1;cursor:pointer;accent-color:#ff6600;">
+            <span id="fire-intensity-val" style="font-size:0.78rem;color:#ff6600;width:36px;font-weight:600;">100%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <span class="label" style="font-size:0.78rem;color:var(--text-muted);">Ukuran:</span>
+            <input type="range" id="fire-size" min="30" max="150" value="80" oninput="setFireSize(this.value)" style="flex:1;cursor:pointer;accent-color:#ff9900;">
+            <span id="fire-size-val" style="font-size:0.78rem;color:#ff9900;width:36px;font-weight:600;">80%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--text-muted);">
+            <input type="checkbox" id="chk-fire-camera" checked onchange="setFireShowCamera(this.checked)" style="cursor:pointer;width:14px;height:14px;accent-color:#ff6600;">
+            <label for="chk-fire-camera" style="cursor:pointer;">Tampilkan Kamera (Mirror)</label>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
   <!-- Modal Panduan & Info (Toggle Kiri Atas Header) -->
   <div id="guide-modal" class="guide-modal-overlay" onclick="closeGuideModalOutside(event)">
     <div class="guide-modal-card" onclick="event.stopPropagation()">
@@ -440,6 +516,15 @@
           • <strong>👌 Cubit / Touch (Jempol + Kelingking / Sentuh 2 Telunjuk / Key `N` & `P`):</strong> Ganti ke filter retro berikutnya/sebelumnya.<br>
           • <strong>🎯 Animasi Ujung Jari:</strong> Penanda lingkaran neon bercahaya & gelombang radar animasi berdenyut pada setiap ujung jari.<br>
           • <strong>✨ 14 Filter Retro:</strong> DUAL-TONE, THERMAL, SKETCH, PIXELATE, GLITCH, INVERT, RED-CHANNEL, EDGE CANNY, BLUR, CARTOON, RAINBOW WAVE, MONO, NEON, SEPIA.</p>
+          
+          <p><strong>🔥 Mode 5: Api Tangan (FireHand Particle Engine — Port dari Python class Api)</strong><br>
+          • <strong>☝️ 1 Jari (Telunjuk):</strong> Api kecil menyala hanya di ujung telunjuk — Default gesture utama.<br>
+          • <strong>✌️ 2 Jari:</strong> Api menyala di Telunjuk + Jari Tengah bersamaan.<br>
+          • <strong>🤟 3 Jari:</strong> Api di 3 ujung jari — nyala lebih intens!<br>
+          • <strong>🖐️ 4-5 Jari:</strong> Api BESAR meledak di semua ujung jari — Ledakan Partikel!<br>
+          • <strong>👊 Tinju (0 Jari):</strong> Api padam total — tidak ada partikel.<br>
+          • <strong>💨 Velocity Burst:</strong> Makin cepat gerakan tangan → api makin besar & turbulent!<br>
+          • <strong>⚙️ 3-Buffer Rendering:</strong> Outer glow (LUT gradient), hot core (white-yellow inti), smoke trail (asap). Physics: lift (API_ANGKAT), neck attraction (API_LEHER), noise turbulence (DERAU_X/Y), heat (API_PANAS_ANGKAT).</p>
         </div>
 
         <div class="guide-section">
